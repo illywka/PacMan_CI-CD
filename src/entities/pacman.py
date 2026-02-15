@@ -1,11 +1,13 @@
 import pygame
 from src.utils.constants import TILE_SIZE, PACMAN_SPEED, WIDTH
+from src.audio.sound_manager import SoundManager
 import src.entities.entity as entity
 import time
 
 class Pacman(pygame.sprite.Sprite):
     def __init__(self, x, y, game_map):
         super().__init__()
+        self.sound_manager = SoundManager()
         self.import_assets()
 
         self.frame_index = 0

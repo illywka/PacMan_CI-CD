@@ -7,7 +7,7 @@ class SoundManager:
 
     def load_sounds(self):
         try:
-            self.sounds['sound_1'] = pygame.mixer.Sound('sounds/sound_1.wav')
+            self.sounds['sound_1'] = pygame.mixer.Sound('assets/sounds/sound_1')
         except FileNotFoundError as e:
             print(f"Error loading sound: {e}")
 
