@@ -119,3 +119,5 @@ class ObjectManager:
             if player.rect.colliderect(self.current_boost.rect):
                 self.current_boost.apply_effect(player)
                 self.current_boost = None
+                
+                player.sound_manager.play_sound("pacman_eat_fruit")
