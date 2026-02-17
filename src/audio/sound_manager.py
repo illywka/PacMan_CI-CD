@@ -9,6 +9,7 @@ class SoundManager:
         try:
             self.sounds['pacman_death'] = pygame.mixer.Sound('src/assets/sounds/pacman_death.mp3')
             self.sounds['pacman_win'] = pygame.mixer.Sound('src/assets/sounds/pacman_win.mp3')
+            self.sounds['pacman_eat_dots'] = pygame.mixer.Sound('src/assets/sounds/pacman_eat_dots.mp3')
         except FileNotFoundError as e:
             print(f"Error loading sound: {e}")
 

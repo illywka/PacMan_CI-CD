@@ -14,6 +14,8 @@ class ObjectManager:
         self.current_boost = None
         self.last_boost_time = 0
         self.boost_interval = 10
+        self.last_pellet_sfx_time = 0
+        self.pellet_sfx_cooldown = 0.2
 
     def is_walkable(self, x, y):
         return self.map.level[y][x] == 0
@@ -107,6 +109,12 @@ class ObjectManager:
             if not pellet.eaten and player.rect.inflate(4, 4).colliderect(pellet.rect):
                 pellet.eaten = True
                 player.score += 10
+
+                now = time.time()
+
+                if now - self.last_pellet_sfx_time >= self.pellet_sfx_cooldown:
+                    player.sound_manager.play_sound("pacman_eat_dots")
+                    self.last_pellet_sfx_time = now
         if self.current_boost and not self.current_boost.eaten:
             if player.rect.colliderect(self.current_boost.rect):
                 self.current_boost.apply_effect(player)
