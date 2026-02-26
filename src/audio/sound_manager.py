@@ -33,3 +33,7 @@ class SoundManager:
 
             if sound.get_num_channels() == 0:
                 sound.play(loops = loops)
+
+    def stop_all_sounds(self):
+        for sound in self.sounds.values():
+            sound.stop()

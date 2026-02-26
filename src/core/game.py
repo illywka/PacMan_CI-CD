@@ -1,7 +1,7 @@
 import pygame
 import random
 
-from src.entities import ghost
+from src.audio.sound_manager import SoundManager
 import src.entities.entity as entity
 from src.utils.constants import WIDTH, HEIGHT, TILE_SIZE, BLACK, FPS, MAP_OFFSET_Y
 from src.map.testMap import Map
@@ -19,7 +19,10 @@ class Game():
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font('src/assets/font/arcadeclassic/ARCADECLASSIC.TTF', 28)
-        
+
+        self.sound_manager = SoundManager()
+        self.sound_manager.play_sound_if_idle("pacman_menu_theme", loops = -1)
+
         self.game_map = None
         self.player = None
         self.ghosts_group = None
@@ -30,7 +33,6 @@ class Game():
         self.ghost_speed = 1.0
 
         self.game_state = "menu"
-        
 
         self.load_assets()
         self.init_game()
@@ -98,24 +100,31 @@ class Game():
         self.exit_btn_rect = self.exit_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 125))
 
     def play_death_animation(self):
+        self.sound_manager.stop_sound("ghosts_normal_move")
+        self.sound_manager.stop_sound("ghosts_return_to_house")
+        self.sound_manager.play_sound("pacman_death")
+
         for frame in self.player.animations["death"]:
             for event in pygame.event.get():
                 self.volume_slider.handle_event(event)
+
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
 
             self.screen.fill(BLACK)
             self.game_map.draw_map(self.screen)
+
             for ghost in self.ghosts_group:
                 ghost.base_speed = self.ghost_speed
                 ghost.speed = self.ghost_speed
                 self.screen.blit(ghost.image, ghost.rect.move(0, MAP_OFFSET_Y))
+
             shifted_rect = self.player.rect.move(0, MAP_OFFSET_Y)
             self.screen.blit(frame, shifted_rect)
             pygame.display.flip()
 
-            self.clock.tick(10)
+            self.clock.tick(5)
 
     def draw_score(self):
         score_text = self.font.render(str(self.player.score), True, (255, 255, 255))
@@ -142,20 +151,33 @@ class Game():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.game_state == "menu":
                         if self.play_btn_rect.collidepoint(event.pos):
+                            self.sound_manager.play_sound("game_select_button")
+                            self.sound_manager.stop_sound("pacman_menu_theme")
+
                             self.init_game()
                             self.game_state = "game"
                         if self.menu_btn_rect.collidepoint(event.pos):
+                            self.sound_manager.play_sound("game_select_button")
+
                             self.game_state = "settings"
                     elif self.game_state == "settings":
                         if self.arrow_btn_rect.collidepoint(event.pos):
+                            self.sound_manager.play_sound("game_select_button")
+
                             self.game_state = "menu"
                         if self.easy_mode_btn_rect.collidepoint(event.pos):
+                            self.sound_manager.play_sound("game_select_button")
+
                             self.ghost_speed = 0.8
                             self.game_state = "menu"
                         if self.medium_mode_btn_rect.collidepoint(event.pos):
+                            self.sound_manager.play_sound("game_select_button")
+
                             self.ghost_speed = 1.4
                             self.game_state = "menu"
                         if self.hard_mode_btn_rect.collidepoint(event.pos):
+                            self.sound_manager.play_sound("game_select_button")
+
                             self.ghost_speed = 2.0
                             self.game_state = "menu"
                     elif self.game_state in ("win", "lose"):
@@ -167,16 +189,26 @@ class Game():
 
                     elif self.game_state == "game":
                         if self.pause_btn_rect.collidepoint(event.pos):
+                            self.sound_manager.play_sound("game_select_button")
+
                             self.paused = not self.paused
                         if self.paused:
+                            self.sound_manager.stop_all_sounds()
+
                             result = self.pause_menu.handle_event(event)
                             if result == 'continue':
+                                self.sound_manager.play_sound("game_select_button")
+
                                 self.paused = False
                             elif result == 'exit':
+                                self.sound_manager.play_sound("game_select_button")
+
                                 self.game_state = "menu"
                                 self.paused = False
 
             if self.game_state == "menu":
+                self.sound_manager.play_sound_if_idle("pacman_menu_theme", loops = -1)
+
                 self.screen.blit(self.startpage_img, (0, 0))
                 self.screen.blit(self.play_btn_img, self.play_btn_rect)
                 self.screen.blit(self.menu_btn_img, self.menu_btn_rect)
@@ -188,7 +220,7 @@ class Game():
                 self.screen.blit(self.hard_mode_btn_img, self.hard_mode_btn_rect)
                 self.screen.blit(self.arrow_btn_img, self.arrow_btn_rect)
                 self.volume_slider.draw(self.screen)
-            
+
             elif self.game_state == "win":
                 self.screen.blit(self.winpage_img, (0, 0))
                 self.screen.blit(self.again_btn_img, self.again_btn_rect)
@@ -206,21 +238,37 @@ class Game():
                     self.objects.update_boost()
                     self.objects.update_objects(self.player)
 
+                    any_ghost_dead = any(ghost.is_dead for ghost in self.ghosts_group)
+
+                    for ghost in self.ghosts_group:
+                        ghost.is_scared = self.player.shielded
+
+                    if self.player.shielded:
+                        self.sound_manager.stop_sound("ghosts_normal_move")
+                        self.sound_manager.stop_sound("ghosts_return_to_house")
+                        self.sound_manager.play_sound_if_idle("ghosts_turn_to_blue", loops = -1)
+                    elif not any_ghost_dead:
+                        self.sound_manager.stop_sound("ghosts_turn_to_blue")
+                        self.sound_manager.stop_sound("ghosts_return_to_house")
+                        self.sound_manager.play_sound_if_idle("ghosts_normal_move", loops = -1)
+                    else:
+                        self.sound_manager.stop_sound("ghosts_turn_to_blue")
+                        self.sound_manager.stop_sound("ghosts_normal_move")
+                        self.sound_manager.play_sound_if_idle("ghosts_return_to_house", loops = -1)
+
                     collision = pygame.sprite.spritecollide(self.player, self.ghosts_group, False)
                     real_collision = []
 
                     for i in range(len(collision)):
                         if collision[i].is_dead != True:
                             real_collision = [collision[i]]
-
-                    for ghost in self.ghosts_group:
-                        ghost.is_scared = self.player.shielded
                             
                     if real_collision:
                         if self.player.shielded:
                             real_collision[0].is_scared = False
                             real_collision[0].is_dead = True
                             real_collision.pop()
+
                             self.player.shielded = False
                             del self.player.active_boosts["shield"]
                         else:
@@ -235,10 +283,10 @@ class Game():
                                 for ghost in self.ghosts_group:
                                     ghost.spawn_time = pygame.time.get_ticks()
                                     ghost.is_dead = False
-                                    ghost.is_scared = False 
+                                    ghost.is_scared = False
                                     ghost.path = []
                                     entity.reset_position(ghost)
-                    
+
                     if all(pellet.eaten for pellet in self.objects.pellets):
                         self.game_state = "win"
 
@@ -249,7 +297,7 @@ class Game():
                 for ghost in self.ghosts_group:
                     self.screen.blit(ghost.image, ghost.rect.move(0, MAP_OFFSET_Y))
                 self.draw_score()
-                
+
 
                 if self.paused:
                     self.pause_menu.draw(self.screen)  
