@@ -45,3 +45,6 @@ class VolumeSlider:
         screen.blit(self.bar_img, self.bar_rect)
         screen.blit(self.fill_img, self.fill_rect) 
         screen.blit(self.knob_img, self.knob_rect)
+
+    def get_volume(self):
+        return self.volume

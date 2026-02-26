@@ -23,6 +23,10 @@ class Game():
         self.sound_manager = SoundManager()
         self.sound_manager.play_sound_if_idle("pacman_menu_theme", loops = -1)
 
+        self.volume_slider = VolumeSlider(center_x = WIDTH // 2, center_y = HEIGHT // 2 + 90)
+        self.sound_manager.set_volume(self.volume_slider.get_volume())
+
+
         self.game_map = None
         self.player = None
         self.ghosts_group = None
@@ -43,7 +47,7 @@ class Game():
         else:
             self.game_map = RandomMap()
 
-        self.player = Pacman(TILE_SIZE, TILE_SIZE, self.game_map)
+        self.player = Pacman(TILE_SIZE, TILE_SIZE, self.game_map, self.sound_manager)
 
         ghosts = [ 
             Pinky(self.game_map, self.player),
@@ -139,6 +143,9 @@ class Game():
                     running = False
 
                 self.volume_slider.handle_event(event)
+
+                if event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP):
+                    self.sound_manager.set_volume(self.volume_slider.get_volume())
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE and self.game_state == "game" and not self.escape_pressed:

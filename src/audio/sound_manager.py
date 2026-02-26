@@ -2,6 +2,7 @@ import pygame
 
 class SoundManager:
     def __init__(self):
+        self.current_volume = 0.5
         self.sounds = {}
         self.load_sounds()
 
@@ -21,7 +22,9 @@ class SoundManager:
 
     def play_sound(self, sound_name):
         if sound_name in self.sounds:
-            self.sounds[sound_name].play()
+            sound = self.sounds[sound_name]
+            sound.set_volume(self.current_volume)
+            sound.play()
 
     def stop_sound(self, sound_name):
         if sound_name in self.sounds:
@@ -30,6 +33,7 @@ class SoundManager:
     def play_sound_if_idle(self, sound_name, loops = 0):
         if sound_name in self.sounds:
             sound = self.sounds[sound_name]
+            sound.set_volume(self.current_volume)
 
             if sound.get_num_channels() == 0:
                 sound.play(loops = loops)
@@ -37,3 +41,10 @@ class SoundManager:
     def stop_all_sounds(self):
         for sound in self.sounds.values():
             sound.stop()
+
+    def set_volume(self, volume):
+        self.current_volume = volume
+        pygame.mixer.music.set_volume(volume)
+
+        for sound in self.sounds.values():
+            sound.set_volume(volume)
