@@ -1,7 +1,7 @@
 import pygame
 
 class VolumeSlider:
-    def __init__(self, center_x, center_y):
+    def __init__(self, center_x, center_y, initial_volume=0.5):
         self.bar_img = pygame.image.load('src/assets/interface/volume_slider/volume_bar.png').convert_alpha()
         self.fill_img = pygame.image.load('src/assets/interface/volume_slider/volume_full.png').convert_alpha()
         self.knob_img = pygame.image.load('src/assets/interface/volume_slider/volume_knob.png').convert_alpha()
@@ -13,10 +13,13 @@ class VolumeSlider:
         self.min_x = self.bar_rect.left + self.knob_rect.width // 2
         self.max_x = self.bar_rect.right - self.knob_rect.width // 2
 
-        self.volume = 0.5
+        self.volume = max(0.0, min(initial_volume, 1.0))
         self.dragging = False
 
         self._update_knob_pos()
+
+        if pygame.mixer.get_init():
+            pygame.mixer.music.set_volume(self.volume)
 
     def _update_knob_pos(self):
         x = self.min_x + int(self.volume * (self.max_x - self.min_x))
