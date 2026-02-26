@@ -1,7 +1,7 @@
 import pygame
 
 class VolumeSlider:
-    def __init__(self, center_x, center_y, initial_volume=0.5):
+    def __init__(self, center_x, center_y, initial_volume=0.5, sound_manager=None):
         self.bar_img = pygame.image.load('src/assets/interface/volume_slider/volume_bar.png').convert_alpha()
         self.fill_img = pygame.image.load('src/assets/interface/volume_slider/volume_full.png').convert_alpha()
         self.knob_img = pygame.image.load('src/assets/interface/volume_slider/volume_knob.png').convert_alpha()
@@ -15,10 +15,11 @@ class VolumeSlider:
 
         self.volume = max(0.0, min(initial_volume, 1.0))
         self.dragging = False
+        self.sound_manager = sound_manager
 
         self._update_knob_pos()
 
-        if pygame.mixer.get_init():
+        if sound_manager is None and pygame.mixer.get_init():
             pygame.mixer.music.set_volume(self.volume)
 
     def _update_knob_pos(self):
@@ -42,7 +43,12 @@ class VolumeSlider:
                 x = max(self.min_x, min(event.pos[0], self.max_x))
                 self.volume = (x - self.min_x) / (self.max_x - self.min_x)
                 self._update_knob_pos()
-                pygame.mixer.music.set_volume(self.volume)
+
+                # Встановлюємо гучність через SoundManager якщо він доступний
+                if self.sound_manager:
+                    self.sound_manager.set_volume(self.volume)
+                else:
+                    pygame.mixer.music.set_volume(self.volume)
 
     def draw(self, screen):
         screen.blit(self.bar_img, self.bar_rect)

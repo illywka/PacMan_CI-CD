@@ -13,7 +13,7 @@ from src.core.pause import Pause
 from src.game_objects.volume_slider import VolumeSlider
 
 class Game():
-    def __init__(self, ghost_speed=GHOST_SPEED, initial_volume=DEFAULT_VOLUME):
+    def __init__(self, ghost_speed = GHOST_SPEED, initial_volume = DEFAULT_VOLUME):
         pygame.init()
 
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -35,7 +35,6 @@ class Game():
         self.escape_pressed = False
         self.ghost_speed = ghost_speed
         self.initial_volume = initial_volume
-
         self.game_state = "menu"
 
         self.load_assets()
