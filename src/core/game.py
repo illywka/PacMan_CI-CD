@@ -14,7 +14,7 @@ from src.game_objects.volume_slider import VolumeSlider
 
 class Game():
     def __init__(self):
-        pygame.init() 
+        pygame.init()
 
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.clock = pygame.time.Clock()
@@ -103,6 +103,21 @@ class Game():
         self.exit_btn_rect = self.exit_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 125))
 
     def play_death_animation(self):
+        """
+        Play the player's death animation frame-by-frame at 7 FPS.
+
+        Renders each frame of the "death" animation over the frozen map and
+        ghosts. Handles QUIT events during playback so the window remains
+        responsive. Volume slider events are also processed so audio can be
+        adjusted mid-animation.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+
         self.sound_manager.stop_sound("ghosts_normal_move")
         self.sound_manager.stop_sound("ghosts_return_to_house")
         self.sound_manager.play_sound("pacman_death")
