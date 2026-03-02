@@ -13,8 +13,41 @@ from src.core.pause import Pause
 from src.game_objects.volume_slider import VolumeSlider
 
 class Game():
+    """
+    Main game controller for the Pac-Man clone.
+
+    Manages the overall game lifecycle including state transitions,
+    asset loading, event handling, rendering, and game logic updates.
+
+    Attributes:
+        screen (pygame.Surface): The main display surface.
+        clock (pygame.time.Clock): Clock for controlling the frame rate.
+        font (pygame.font.Font): Arcade-style font for score rendering.
+        game_map (Map | RandomMap): The current level map.
+        player (Pacman): The player-controlled Pac-Man sprite.
+        ghosts_group (pygame.sprite.Group): Group containing all ghost sprites.
+        objects (ObjectManager): Manages pellets and boost items.
+        pause_menu (Pause): The in-game pause overlay.
+        paused (bool): Whether the game is currently paused.
+        escape_pressed (bool): Tracks ESC key state to prevent toggle repeat.
+        ghost_speed (float): Base movement speed for all ghosts.
+        game_state (str): Current state of the game FSM.
+            One of: "menu", "settings", "game", "win", "lose".
+    """
     def __init__(self, ghost_speed = GHOST_SPEED, initial_volume = DEFAULT_VOLUME):
-        pygame.init()
+        """
+        Initialize Pygame, set up the display window, and prepare the game.
+
+        Loads all graphical assets and calls init_game() to create
+        the first playable session.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        pygame.init() 
 
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.clock = pygame.time.Clock()
@@ -41,6 +74,20 @@ class Game():
         self.init_game()
     
     def init_game(self):
+        """
+        Create and reset all game entities for a new session.
+
+        Randomly selects either a fixed Map or a procedurally generated
+        RandomMap. Spawns the player, all four ghosts (Pinky, Inky, Clyde,
+        Sue), and populates the map with pellets. Ghost base speed is
+        applied from the current difficulty setting stored in ghost_speed.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         if random.random() < 0.5:
             self.game_map = Map()
         else:
@@ -65,6 +112,20 @@ class Game():
         self.pause_menu = Pause(self.volume_slider) 
 
     def load_assets(self):
+        """
+        Load and scale all image assets and create UI element rects.
+
+        Loads interface images (start, win, lose screens), buttons (play,
+        menu, pause, again, exit, difficulty, arrow), and initialises the
+        VolumeSlider widget. All button rects are positioned relative to
+        the screen centre so the layout adapts to WIDTH / HEIGHT constants.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         self.startpage_img = pygame.image.load('src/assets/interface/startpage/startpage.png').convert_alpha()
         self.startpage_img = pygame.transform.scale(self.startpage_img, (WIDTH, HEIGHT))
 
@@ -103,6 +164,20 @@ class Game():
         self.exit_btn_rect = self.exit_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 125))
 
     def play_death_animation(self):
+        """
+        Play the player's death animation frame-by-frame at 10 FPS.
+
+        Renders each frame of the "death" animation over the frozen map and
+        ghosts. Handles QUIT events during playback so the window remains
+        responsive. Volume slider events are also processed so audio can be
+        adjusted mid-animation.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         self.sound_manager.stop_sound("ghosts_normal_move")
         self.sound_manager.stop_sound("ghosts_return_to_house")
         self.sound_manager.play_sound("pacman_death")
@@ -130,11 +205,52 @@ class Game():
             self.clock.tick(7)
 
     def draw_score(self):
+        """
+        Render the player's current score centred in the HUD area above the map.
+
+        The score is drawn in white using the arcade font, vertically centred
+        within the MAP_OFFSET_Y band at the top of the screen.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         score_text = self.font.render(str(self.player.score), True, (255, 255, 255))
         score_rect = score_text.get_rect(center=(WIDTH // 2, MAP_OFFSET_Y // 2))
         self.screen.blit(score_text, score_rect)
 
     def run(self):
+        """
+        Run the main game loop until the window is closed.
+
+        Each iteration processes all queued Pygame events, updates game logic
+        when in the "game" state, and renders the appropriate screen for the
+        current game_state. The loop is capped at FPS frames per second.
+
+        State machine transitions:
+            "menu"      -> "game"     (Play button)
+            "menu"      -> "settings" (Menu button)
+            "settings"  -> "menu"     (Back arrow or any difficulty button)
+            "game"      -> "lose"     (player lives reach 0)
+            "game"      -> "win"      (all pellets eaten)
+            "win"/"lose" -> "game"    (Again button)
+            "win"/"lose" -> "menu"    (Exit button)
+
+        Ghost collision logic:
+            - If the player has a shield boost active, the colliding ghost is
+              killed and the shield is consumed instead of the player losing a life.
+            - Otherwise the player loses one life, the death animation plays,
+              and all entities are reset to their spawn positions. When lives
+              reach 0 the state transitions to "lose".
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         running = True
         while running:
             for event in pygame.event.get():
