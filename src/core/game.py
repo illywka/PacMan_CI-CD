@@ -26,7 +26,6 @@ class Game():
         self.volume_slider = VolumeSlider(center_x = WIDTH // 2, center_y = HEIGHT // 2 + 90)
         self.sound_manager.set_volume(self.volume_slider.get_volume())
 
-
         self.game_map = None
         self.player = None
         self.ghosts_group = None
@@ -149,11 +148,12 @@ class Game():
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE and self.game_state == "game" and not self.escape_pressed:
+                        self.sound_manager.play_sound("game_select_button")
                         self.paused = not self.paused
                         self.escape_pressed = True
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_ESCAPE:
-                        self.escape_pressed = False 
+                        self.escape_pressed = False
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if self.game_state == "menu":
@@ -189,9 +189,12 @@ class Game():
                             self.game_state = "menu"
                     elif self.game_state in ("win", "lose"):
                         if self.again_btn_rect.collidepoint(event.pos):
+                            self.sound_manager.play_sound("game_select_button")
                             self.init_game()
                             self.game_state = "game"
                         elif self.exit_btn_rect.collidepoint(event.pos):
+                            self.sound_manager.stop_all_sounds()
+                            self.sound_manager.play_sound("game_select_button")
                             self.game_state = "menu"
 
                     elif self.game_state == "game":
@@ -294,7 +297,10 @@ class Game():
                                     ghost.path = []
                                     entity.reset_position(ghost)
 
+                    #
                     if all(pellet.eaten for pellet in self.objects.pellets):
+                        self.sound_manager.stop_all_sounds()
+                        self.sound_manager.play_sound_if_idle("pacman_win")
                         self.game_state = "win"
 
                 self.screen.fill(BLACK)
@@ -304,7 +310,6 @@ class Game():
                 for ghost in self.ghosts_group:
                     self.screen.blit(ghost.image, ghost.rect.move(0, MAP_OFFSET_Y))
                 self.draw_score()
-
 
                 if self.paused:
                     self.pause_menu.draw(self.screen)  
