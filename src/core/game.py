@@ -3,7 +3,7 @@ import random
 
 from src.audio.sound_manager import SoundManager
 import src.entities.entity as entity
-from src.utils.constants import WIDTH, HEIGHT, TILE_SIZE, BLACK, FPS, MAP_OFFSET_Y
+from src.utils.constants import WIDTH, HEIGHT, TILE_SIZE, BLACK, FPS, MAP_OFFSET_Y, GHOST_SPEED, DEFAULT_VOLUME
 from src.map.testMap import Map
 from src.entities.pacman import Pacman
 from src.entities.ghost import Pinky, Inky, Clyde, Sue
@@ -13,8 +13,8 @@ from src.core.pause import Pause
 from src.game_objects.volume_slider import VolumeSlider
 
 class Game():
-    def __init__(self):
-        pygame.init() 
+    def __init__(self, ghost_speed = GHOST_SPEED, initial_volume = DEFAULT_VOLUME):
+        pygame.init()
 
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.clock = pygame.time.Clock()
@@ -33,8 +33,8 @@ class Game():
         self.pause_menu = None
         self.paused = False
         self.escape_pressed = False
-        self.ghost_speed = 1.0
-
+        self.ghost_speed = ghost_speed
+        self.initial_volume = initial_volume
         self.game_state = "menu"
 
         self.load_assets()
@@ -88,7 +88,7 @@ class Game():
         self.arrow_btn_img = pygame.image.load('src/assets/interface/arrow/arrow.png').convert_alpha()
         self.arrow_btn_rect = self.arrow_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 150))
 
-        self.volume_slider = VolumeSlider(center_x=WIDTH // 2, center_y=HEIGHT // 2 + 90)
+        self.volume_slider = VolumeSlider(center_x=WIDTH // 2, center_y=HEIGHT // 2 + 90, initial_volume=self.initial_volume)
 
         self.losepage_img = pygame.image.load('src/assets/interface/lose_page/lose_menu.png').convert_alpha()
         self.losepage_img = pygame.transform.scale(self.losepage_img, (WIDTH, HEIGHT))
