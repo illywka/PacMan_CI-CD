@@ -1,5 +1,6 @@
 import pygame
 from src.utils.constants import TILE_SIZE, PACMAN_SPEED, WIDTH
+from src.audio.sound_manager import SoundManager
 import src.entities.entity as entity
 import time
 
@@ -36,7 +37,7 @@ class Pacman(pygame.sprite.Sprite):
         current_animation (list[pygame.Surface]): The animation list currently
             being cycled through.
     """
-    def __init__(self, x: int, y: int, game_map):
+    def __init__(self, x: int, y: int, game_map, sound_manager = None):
         """
         Initialise Pac-Man at the given tile coordinates.
 
@@ -54,6 +55,7 @@ class Pacman(pygame.sprite.Sprite):
             None
         """
         super().__init__()
+        self.sound_manager = sound_manager or SoundManager()
         self.import_assets()
 
         self.frame_index = 0

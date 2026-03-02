@@ -26,7 +26,7 @@ class VolumeSlider:
         volume (float): Current volume in the range [0.0, 1.0].
         dragging (bool): True while the user is holding the knob.
     """
-    def __init__(self, center_x: int, center_y: int):
+    def __init__(self, center_x: int, center_y: int, initial_volume=0.5, sound_manager=None):
         """
         Load slider assets, position all rects, and set the default volume.
 
@@ -52,10 +52,14 @@ class VolumeSlider:
         self.min_x = self.bar_rect.left + self.knob_rect.width // 2
         self.max_x = self.bar_rect.right - self.knob_rect.width // 2
 
-        self.volume = 0.5
+        self.volume = max(0.0, min(initial_volume, 1.0))
         self.dragging = False
+        self.sound_manager = sound_manager
 
         self._update_knob_pos()
+
+        if sound_manager is None and pygame.mixer.get_init():
+            pygame.mixer.music.set_volume(self.volume)
 
     def _update_knob_pos(self):
         """
@@ -105,7 +109,12 @@ class VolumeSlider:
                 x = max(self.min_x, min(event.pos[0], self.max_x))
                 self.volume = (x - self.min_x) / (self.max_x - self.min_x)
                 self._update_knob_pos()
-                pygame.mixer.music.set_volume(self.volume)
+
+                # Встановлюємо гучність через SoundManager якщо він доступний
+                if self.sound_manager:
+                    self.sound_manager.set_volume(self.volume)
+                else:
+                    pygame.mixer.music.set_volume(self.volume)
 
     def draw(self, screen: pygame.Surface):
         """
@@ -124,3 +133,6 @@ class VolumeSlider:
         screen.blit(self.bar_img, self.bar_rect)
         screen.blit(self.fill_img, self.fill_rect) 
         screen.blit(self.knob_img, self.knob_rect)
+
+    def get_volume(self):
+        return self.volume

@@ -20,6 +20,13 @@ WHITE = (255, 255, 255)
 PACMAN_SPEED = 2
 GHOST_SPEED = 1
 
+DEFAULT_VOLUME = 0.5
+DIFFICULTY_SPEEDS = {
+    "easy": 0.8,
+    "medium": 1.4,
+    "hard": 2.0,
+}
+
 FPS = 60
 
 BOOST_DURATION = 5

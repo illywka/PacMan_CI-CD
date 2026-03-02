@@ -1,0 +1,51 @@
+import pygame
+
+class SoundManager:
+    def __init__(self):
+        self.current_volume = 0.5
+        self.sounds = {}
+        self.load_sounds()
+
+    def load_sounds(self):
+        try:
+            self.sounds['pacman_death'] = pygame.mixer.Sound('src/assets/sounds/pacman_death.mp3')
+            self.sounds['pacman_win'] = pygame.mixer.Sound('src/assets/sounds/pacman_win.mp3')
+            self.sounds['pacman_eat_dots'] = pygame.mixer.Sound('src/assets/sounds/pacman_eat_dots.mp3')
+            self.sounds['ghosts_normal_move'] = pygame.mixer.Sound('src/assets/sounds/ghosts_normal_move.mp3')
+            self.sounds['pacman_eat_fruit'] = pygame.mixer.Sound('src/assets/sounds/pacman_eat_fruit.mp3')
+            self.sounds['game_select_button'] = pygame.mixer.Sound('src/assets/sounds/game_select_button.mp3')
+            self.sounds['pacman_menu_theme'] = pygame.mixer.Sound('src/assets/sounds/pacman_menu_theme.mp3')
+            self.sounds['ghosts_turn_to_blue'] = pygame.mixer.Sound('src/assets/sounds/ghosts_turn_to_blue.mp3')
+            self.sounds['ghosts_return_to_house'] = pygame.mixer.Sound('src/assets/sounds/ghosts_return_to_house.mp3')
+            self.sounds['pacman_lose'] = pygame.mixer.Sound('src/assets/sounds/pacman_lose.mp3')
+        except FileNotFoundError as e:
+            print(f"Error loading sound: {e}")
+
+    def play_sound(self, sound_name):
+        if sound_name in self.sounds:
+            sound = self.sounds[sound_name]
+            sound.set_volume(self.current_volume)
+            sound.play()
+
+    def stop_sound(self, sound_name):
+        if sound_name in self.sounds:
+            self.sounds[sound_name].stop()
+    
+    def play_sound_if_idle(self, sound_name, loops = 0):
+        if sound_name in self.sounds:
+            sound = self.sounds[sound_name]
+            sound.set_volume(self.current_volume)
+
+            if sound.get_num_channels() == 0:
+                sound.play(loops = loops)
+
+    def stop_all_sounds(self):
+        for sound in self.sounds.values():
+            sound.stop()
+
+    def set_volume(self, volume):
+        self.current_volume = volume
+        pygame.mixer.music.set_volume(volume)
+
+        for sound in self.sounds.values():
+            sound.set_volume(volume)
