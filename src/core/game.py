@@ -89,7 +89,6 @@ class Game():
         self.arrow_btn_rect = self.arrow_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 150))
 
         self.volume_slider = VolumeSlider(center_x=WIDTH // 2, center_y=HEIGHT // 2 + 90, initial_volume=self.initial_volume)
-        self.volume_slider = VolumeSlider(center_x=WIDTH // 2, center_y=HEIGHT // 2 + 90)
 
         self.losepage_img = pygame.image.load('src/assets/interface/lose_page/lose_menu.png').convert_alpha()
         self.losepage_img = pygame.transform.scale(self.losepage_img, (WIDTH, HEIGHT))
