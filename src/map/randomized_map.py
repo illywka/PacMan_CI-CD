@@ -3,7 +3,37 @@ import random
 from src.utils.constants import TILE_SIZE, GRID_HEIGHT, GRID_WIDTH, WIDTH, HEIGHT, BLUE, BLACK, FPS, MAP_OFFSET_Y
 
 class RandomMap():
+    """
+    A procedurally generated Pac-Man maze.
+
+    Builds a new symmetrical maze each time it is instantiated using a
+    randomised recursive-division-style algorithm. The ghost pen is always
+    placed at the centre, horizontal tunnels are carved at mid-height, and
+    the left half is mirrored to the right for visual balance.
+
+    Attributes:
+        level (list[list[int]]): 2-D tile grid where 1 = wall, 0 = walkable,
+            and 2 = ghost pen entrance marker.
+        walls (list[pygame.Rect]): Pixel-space rects for every wall tile,
+            used for collision detection and rendering.
+        height (int): Number of tile rows in the grid.
+        width (int): Number of tile columns in the grid.
+        ghost_zone_size (int): Side length of the square ghost pen (3 tiles).
+        ghost_start_x (int): Column index of the top-left corner of the
+            ghost pen, centred horizontally.
+        ghost_start_y (int): Row index of the top-left corner of the
+            ghost pen, centred vertically.
+    """
     def __init__(self):
+        """
+        Generate the maze, build the wall rect list, and compute dimensions.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         self.level = self.generate_pacman_maze()
         self.walls = []
         self.create_walls()
@@ -17,6 +47,19 @@ class RandomMap():
 
 
     def create_walls(self):
+        """
+        Populate self.walls with a pygame.Rect for every wall tile in the grid.
+
+        Iterates the full level grid and creates a TILE_SIZE × TILE_SIZE rect
+        at the pixel position of each cell whose value is 1. Called once
+        during __init__ after the maze is generated.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         self.walls = []
 
         for y, row in enumerate(self.level):
@@ -27,13 +70,50 @@ class RandomMap():
                     )
 
 
-    def draw_map(self, screen):
+    def draw_map(self, screen: pygame.Surface):
+        """
+        Populate self.walls with a pygame.Rect for every wall tile in the grid.
+
+        Iterates the full level grid and creates a TILE_SIZE × TILE_SIZE rect
+        at the pixel position of each cell whose value is 1. Called once
+        during __init__ after the maze is generated.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         for wall in self.walls:
             shifted = wall.move(0, MAP_OFFSET_Y)
             pygame.draw.rect(screen, BLUE, shifted, 2)
 
 
-    def generate_pacman_maze(self): 
+    def generate_pacman_maze(self) -> list[list[int]]: 
+        """
+        Procedurally build and return a symmetrical Pac-Man maze grid.
+
+        Generation steps:
+            1. Fill the grid with open tiles and place a solid border.
+            2. Reserve a protected ghost-house zone around the centre to
+               prevent random walls from encroaching on the pen.
+            3. Carve the ghost pen as a hollow 5×5 box with a top entrance
+               (tile value 2) and a cleared approach tile above it.
+            4. Scatter internal walls on even-coordinate cells outside the
+               ghost zone, randomly extending each wall one tile in a
+               cardinal direction.
+            5. Mirror the left half of the grid onto the right half for
+               bilateral symmetry, skipping ghost-zone tiles.
+            6. Carve two-tile-wide horizontal tunnels through both side
+               borders at mid-height.
+
+        Args:
+            None
+
+        Returns:
+            list[list[int]]: Completed GRID_HEIGHT × GRID_WIDTH tile grid
+                where 1 = wall, 0 = walkable, and 2 = ghost pen entrance.
+        """
         level = [[0 for _ in range(GRID_WIDTH)] for _ in range(GRID_HEIGHT)]
         
         for y in range(GRID_HEIGHT):
