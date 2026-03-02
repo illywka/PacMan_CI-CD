@@ -17,6 +17,7 @@ class SoundManager:
             self.sounds['pacman_menu_theme'] = pygame.mixer.Sound('src/assets/sounds/pacman_menu_theme.mp3')
             self.sounds['ghosts_turn_to_blue'] = pygame.mixer.Sound('src/assets/sounds/ghosts_turn_to_blue.mp3')
             self.sounds['ghosts_return_to_house'] = pygame.mixer.Sound('src/assets/sounds/ghosts_return_to_house.mp3')
+            self.sounds['pacman_lose'] = pygame.mixer.Sound('src/assets/sounds/pacman_lose.mp3')
         except FileNotFoundError as e:
             print(f"Error loading sound: {e}")
 

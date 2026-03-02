@@ -127,7 +127,7 @@ class Game():
             self.screen.blit(frame, shifted_rect)
             pygame.display.flip()
 
-            self.clock.tick(5)
+            self.clock.tick(7)
 
     def draw_score(self):
         score_text = self.font.render(str(self.player.score), True, (255, 255, 255))
@@ -287,6 +287,7 @@ class Game():
                             pygame.time.delay(300)
 
                             if self.player.lives <= 0:
+                                self.sound_manager.play_sound("pacman_lose")
                                 self.game_state = "lose"
                             else:
                                 entity.reset_position(self.player)
@@ -297,7 +298,6 @@ class Game():
                                     ghost.path = []
                                     entity.reset_position(ghost)
 
-                    #
                     if all(pellet.eaten for pellet in self.objects.pellets):
                         self.sound_manager.stop_all_sounds()
                         self.sound_manager.play_sound_if_idle("pacman_win")
