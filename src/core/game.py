@@ -165,7 +165,7 @@ class Game():
 
     def play_death_animation(self):
         """
-        Play the player's death animation frame-by-frame at 10 FPS.
+        Play the player's death animation frame-by-frame at 7 FPS.
 
         Renders each frame of the "death" animation over the frozen map and
         ghosts. Handles QUIT events during playback so the window remains

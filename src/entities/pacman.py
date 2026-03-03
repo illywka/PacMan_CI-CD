@@ -6,50 +6,25 @@ import time
 
 class Pacman(pygame.sprite.Sprite):
     """
-    Player-controlled Pac-Man sprite.
+    Represents the Pacman player character with movement, animations, and game mechanics.
 
-    Handles keyboard input, tile-aligned movement with tunnel wrapping,
-    frame animation, boost timers, and tracks lives and score.
-
-    Attributes:
-        frame_index (float): Fractional index into the current animation list,
-            incremented each frame by animation_speed.
-        animation_speed (float): Amount added to frame_index per update cycle.
-        image (pygame.Surface): The currently displayed animation frame.
-        original_image (pygame.Surface): Unmodified copy of the initial frame,
-            used by reset_image() to restore appearance after death.
-        rect (pygame.Rect): Bounding box used for rendering and collision.
-        game_map (Map | RandomMap): Reference to the active level map.
-        direction (pygame.Vector2): Unit vector of current movement direction.
-        next_direction (pygame.Vector2): Queued direction to apply at the next
-            valid tile centre.
-        speed (float): Current per-frame pixel speed; may be boosted temporarily.
-        lives (int): Remaining lives; game ends when this reaches 0.
-        score (int): Accumulated score from eating pellets and boosts.
-        active_boosts (dict[str, float]): Maps active boost name to its
-            expiry timestamp (time.time()).
-        base_speed (float): Reference speed used to restore after a speed boost.
-        shielded (bool): True while a shield boost is active.
-        pos (pygame.Vector2): Sub-pixel position used for smooth movement.
-        start_pos (pygame.Vector2): Spawn position, used by reset_position().
-        animations (dict[str, list[pygame.Surface]]): Keyed animation frame
-            lists: "right", "left", "up", "down", "death".
-        current_animation (list[pygame.Surface]): The animation list currently
-            being cycled through.
+    This class handles player input and movement, sprite animations (movement in
+    4 directions and death sequence), life management and scoring, and power-up/boost
+    effects.
     """
-    def __init__(self, x: int, y: int, game_map, sound_manager = None):
-        """
-        Initialise Pac-Man at the given tile coordinates.
 
-        Loads and slices sprite sheets into named animation lists, sets all
-        movement and boost state to their defaults, and records the spawn
-        position for later resets.
+    def __init__(self, x, y, game_map, sound_manager = None):
+        """
+        Initialize Pacman at the specified position.
+
+        Loads sprite animations, sets up initial position and state variables
+        including lives, score, direction, speed, and active boosts.
 
         Args:
-            x (int): Starting pixel x coordinate (left edge of sprite).
-            y (int): Starting pixel y coordinate (top edge of sprite).
-            game_map (Map | RandomMap): The active level map, used for wall
-                collision checks.
+            x (int): Starting x-coordinate in pixels
+            y (int): Starting y-coordinate in pixels
+            game_map: The game map object for collision detection
+            sound_manager (SoundManager, optional): Sound manager instance for audio
 
         Returns:
             None
