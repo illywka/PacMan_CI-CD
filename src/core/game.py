@@ -34,6 +34,7 @@ class Game():
         game_state (str): Current state of the game FSM.
             One of: "menu", "settings", "game", "win", "lose".
     """
+
     def __init__(self, ghost_speed = GHOST_SPEED, initial_volume = DEFAULT_VOLUME):
         """
         Initialize Pygame, set up the display window, and prepare the game.
@@ -42,11 +43,14 @@ class Game():
         the first playable session.
 
         Args:
-            None
+            self
+            ghost_speed (float): Base movement speed for all ghosts, set by
+            initial_volume (float): Initial volume level for the sound manager, between 0.0 and 1.0
 
         Returns:
             None
         """
+
         pygame.init() 
 
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -83,11 +87,12 @@ class Game():
         applied from the current difficulty setting stored in ghost_speed.
 
         Args:
-            None
+            self
 
         Returns:
             None
         """
+
         if random.random() < 0.5:
             self.game_map = Map()
         else:
@@ -121,11 +126,12 @@ class Game():
         the screen centre so the layout adapts to WIDTH / HEIGHT constants.
 
         Args:
-            None
+            self
 
         Returns:
             None
         """
+
         self.startpage_img = pygame.image.load('src/assets/interface/startpage/startpage.png').convert_alpha()
         self.startpage_img = pygame.transform.scale(self.startpage_img, (WIDTH, HEIGHT))
 
@@ -173,11 +179,12 @@ class Game():
         adjusted mid-animation.
 
         Args:
-            None
+            self
 
         Returns:
             None
         """
+
         self.sound_manager.stop_sound("ghosts_normal_move")
         self.sound_manager.stop_sound("ghosts_return_to_house")
         self.sound_manager.play_sound("pacman_death")
@@ -212,11 +219,12 @@ class Game():
         within the MAP_OFFSET_Y band at the top of the screen.
 
         Args:
-            None
+            self
 
         Returns:
             None
         """
+
         score_text = self.font.render(str(self.player.score), True, (255, 255, 255))
         score_rect = score_text.get_rect(center=(WIDTH // 2, MAP_OFFSET_Y // 2))
         self.screen.blit(score_text, score_rect)
@@ -246,11 +254,12 @@ class Game():
               reach 0 the state transitions to "lose".
 
         Args:
-            None
+            self
 
         Returns:
             None
         """
+
         running = True
         while running:
             for event in pygame.event.get():

@@ -69,7 +69,6 @@ class SoundManager:
 
         if sound_name in self.sounds:
             sound = self.sounds[sound_name]
-            sound.set_volume(self.current_volume)
             sound.play()
 
     def stop_sound(self, sound_name):
@@ -107,7 +106,6 @@ class SoundManager:
 
         if sound_name in self.sounds:
             sound = self.sounds[sound_name]
-            sound.set_volume(self.current_volume)
 
             if sound.get_num_channels() == 0:
                 sound.play(loops = loops)

@@ -26,6 +26,7 @@ class VolumeSlider:
         volume (float): Current volume in the range [0.0, 1.0].
         dragging (bool): True while the user is holding the knob.
     """
+
     def __init__(self, center_x: int, center_y: int, initial_volume=0.5, sound_manager=None):
         """
         Load slider assets, position all rects, and set the default volume.
@@ -35,12 +36,16 @@ class VolumeSlider:
         strip with the default volume of 0.5.
 
         Args:
+            self
             center_x (int): Pixel x coordinate for the centre of the slider.
             center_y (int): Pixel y coordinate for the centre of the slider.
+            initial_volume (float): Starting volume level between 0.0 and 1.0.
+            sound_manager (SoundManager, optional): If provided, this manager's
 
         Returns:
             None
         """
+
         self.bar_img = pygame.image.load('src/assets/interface/volume_slider/volume_bar.png').convert_alpha()
         self.fill_img = pygame.image.load('src/assets/interface/volume_slider/volume_full.png').convert_alpha()
         self.knob_img = pygame.image.load('src/assets/interface/volume_slider/volume_knob.png').convert_alpha()
@@ -70,11 +75,12 @@ class VolumeSlider:
         sets fill_rect to span from the bar's left edge to the knob centre.
 
         Args:
-            None
+            self
 
         Returns:
             None
         """
+
         x = self.min_x + int(self.volume * (self.max_x - self.min_x))
         self.knob_rect.centerx = x
         self.knob_rect.centery = self.bar_rect.centery
@@ -92,11 +98,13 @@ class VolumeSlider:
         pygame.mixer.music.set_volume() is called immediately.
 
         Args:
+            self
             event (pygame.event.Event): A Pygame event from the main loop.
 
         Returns:
             None
         """
+
         if event.type == pygame.MOUSEBUTTONDOWN:
             if self.knob_rect.collidepoint(event.pos):
                 self.dragging = True
@@ -110,7 +118,6 @@ class VolumeSlider:
                 self.volume = (x - self.min_x) / (self.max_x - self.min_x)
                 self._update_knob_pos()
 
-                # Встановлюємо гучність через SoundManager якщо він доступний
                 if self.sound_manager:
                     self.sound_manager.set_volume(self.volume)
                 else:
@@ -124,12 +131,13 @@ class VolumeSlider:
         it always appears in front.
 
         Args:
-            screen (pygame.Surface): The surface to draw onto, typically
-                the main display surface.
+            self
+            screen (pygame.Surface): The surface to draw onto, typically the main display surface.
 
         Returns:
             None
         """
+
         screen.blit(self.bar_img, self.bar_rect)
         screen.blit(self.fill_img, self.fill_rect) 
         screen.blit(self.knob_img, self.knob_rect)
