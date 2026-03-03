@@ -1,22 +1,22 @@
 import pygame
 from src.utils.constants import TILE_SIZE, GHOST_SPEED
 
-def is_centered(self):
+def is_centered(self) -> bool:
         """
-        Check if the entity is centered within its current tile.
+        Check whether the entity is close enough to the centre of its current tile.
 
-        Calculates the distance between the entity's center and the tile's
-        center point. Returns True if the entity is within a tolerance
-        distance (equal to its speed) from the tile center. Used to determine
-        when the entity can make direction changes.
+        Computes the nearest tile centre from the entity's pixel position and
+        returns True if the distance in both axes is within a tolerance equal
+        to the entity's current speed. This is used to gate direction changes
+        so entities only turn at tile boundaries, preventing clipping into walls.
 
         Args:
-            self: The entity instance (Pacman or Ghost)
+                None
 
         Returns:
-            bool: True if entity is centered on a tile, False otherwise
+                bool: True if the entity is within one speed-unit of the tile centre
+                on both axes, False otherwise.
         """
-
         center_x, center_y = self.rect.center
 
         tile_center_x = (center_x // TILE_SIZE) * TILE_SIZE + TILE_SIZE // 2    
@@ -29,22 +29,23 @@ def is_centered(self):
 
         return dist_x < tolerance and dist_y < tolerance
 
-def check_collision(self, direction):
+def check_collision(self, direction) -> bool:
         """
-        Check if moving in the given direction would result in a wall collision.
+        Determine whether moving one step in the given direction would collide
+        with a wall tile.
 
-        Calculates the entity's next position based on the provided direction
-        and current speed, then checks if that position would collide with any
-        walls on the game map.
+        Projects the entity's bounding rect forward by one speed-unit along
+        the supplied direction vector and tests it against every wall rect in
+        the current map. The entity's actual position is not modified.
 
         Args:
-            self: The entity instance (Pacman or Ghost)
-            direction (pygame.Vector2): The direction vector to check for collision
+                direction (pygame.Vector2): A unit (or zero) vector representing
+                the intended movement direction, e.g. Vector2(1, 0) for right.
 
         Returns:
-            bool: True if collision would occur, False if path is clear
+                bool: True if the projected rect overlaps any wall tile, False if
+                the path is clear.
         """
-
         next_x = self.pos.x + direction.x * self.speed
         next_y = self.pos.y + direction.y * self.speed
         
@@ -55,22 +56,22 @@ def check_collision(self, direction):
         
         return False
 
-def reset_position(self):
+def reset_position(self) -> None:
         """
-        Reset the entity to its starting position and clear movement directions.
+        Teleport the entity back to its spawn position and clear its movement state.
 
-        Restores the entity's position to the initial starting position,
-        resets both current and next direction vectors to zero (no movement),
-        and updates the position vector. Used when respawning entities or
-        resetting game state.
+        Resets the pixel-accurate position vector and the display rect to the
+        entity's original starting coordinates, and zeroes both the current
+        direction and the queued next direction. Called after the player loses a
+        life or when starting a new round so all entities begin from their
+        designated spawn points.
 
         Args:
-            self: The entity instance (Pacman or Ghost)
+                None
 
         Returns:
-            None
+                None
         """
-
         self.rect.topleft = self.start_pos.copy()
 
         self.direction = pygame.Vector2(0, 0)

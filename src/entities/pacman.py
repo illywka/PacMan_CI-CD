@@ -29,7 +29,6 @@ class Pacman(pygame.sprite.Sprite):
         Returns:
             None
         """
-
         super().__init__()
         self.sound_manager = sound_manager or SoundManager()
         self.import_assets()
@@ -58,11 +57,12 @@ class Pacman(pygame.sprite.Sprite):
 
     def get_input(self):
         """
-        Process keyboard input and set the next movement direction.
+        Read keyboard state and queue the next intended movement direction.
 
-        Checks for arrow keys or WASD keys and updates the next_direction
-        vector accordingly. The next direction will be applied when Pacman
-        reaches a tile center, allowing for smooth directional changes.
+        Supports both arrow keys and WASD. Only the most recent key in the
+        priority order (left > right > up > down) is queued each frame.
+        The queued direction is not applied immediately; move() validates it
+        against walls at the next tile centre.
 
         Args:
             None
@@ -70,7 +70,6 @@ class Pacman(pygame.sprite.Sprite):
         Returns:
             None
         """
-
         keys = pygame.key.get_pressed()
         
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -84,12 +83,20 @@ class Pacman(pygame.sprite.Sprite):
 
     def move(self):
         """
-        Update Pacman's position based on current direction and handle collisions.
+        Apply the queued direction and advance Pac-Man's position by one frame.
 
-        Handles direction changes when Pacman is centered on a tile,
-        implements screen wrapping at the edges, checks for wall collisions,
-        and updates the position smoothly. Snaps to tile boundaries when
-        collision is detected.
+        Direction change rules:
+            - An exact reverse (180°) is applied immediately without waiting
+              for a tile centre.
+            - Any other turn is only applied when Pac-Man is centred on a tile
+              and the new direction is not blocked by a wall.
+
+        Tunnel wrapping: exiting the left or right screen edge teleports
+        Pac-Man to the opposite side.
+
+        Movement: if the current direction is clear, pos advances by speed
+        pixels. If blocked, pos snaps to the current tile centre to prevent
+        wall clipping.
 
         Args:
             None
@@ -97,7 +104,6 @@ class Pacman(pygame.sprite.Sprite):
         Returns:
             None
         """
-
         if self.next_direction != pygame.Vector2(0, 0):
             if self.next_direction == -self.direction:
                 self.direction = self.next_direction
@@ -140,12 +146,22 @@ class Pacman(pygame.sprite.Sprite):
 
     def import_assets(self):
         """
-        Load and prepare all Pacman sprite animations.
+        Load sprite sheets from disk and slice them into named animation lists.
 
-        Loads two sprite sheets: movement sprites (9 frames for directional
-        movement left, right, up, down) and death animation (11 frames showing
-        Pacman's death sequence). Each frame is extracted from the sprite sheet,
-        scaled to TILE_SIZE, and organized into animation dictionaries by direction.
+        Loads two sprite sheets: a 9-frame movement sheet and an 11-frame
+        death sheet. Each frame is cropped to its natural width and scaled to
+        TILE_SIZE × TILE_SIZE. The resulting frames are assembled into the
+        directional animation lists stored in self.animations.
+
+        Animation keys and their frame composition:
+            "right"  — frames 0, 1, 2, 1  (mouth opening right)
+            "left"   — frames 0, 3, 4, 3  (mouth opening left)
+            "up"     — frames 0, 5, 6, 5  (mouth opening up)
+            "down"   — frames 0, 7, 8, 7  (mouth opening down)
+            "death"  — all 11 death frames in order
+
+        Falls back to a single-frame animation using the current image if
+        either sprite sheet file is not found.
 
         Args:
             None
@@ -153,7 +169,6 @@ class Pacman(pygame.sprite.Sprite):
         Returns:
             None
         """
-
         path_move = 'src/assets/pacman/pacman_move.png'
         path_death = 'src/assets/pacman/pacman_death.png'
         self.animations = {}
@@ -205,12 +220,12 @@ class Pacman(pygame.sprite.Sprite):
 
     def animate(self):
         """
-        Update Pacman's sprite animation based on current movement direction.
+        Advance the animation frame and update self.image for the current direction.
 
-        Selects the appropriate animation sequence (left, right, up, down)
-        based on the current direction vector. Advances the frame index
-        when Pacman is moving, creating smooth directional animations.
-        The death animation sequence is handled separately.
+        Switches current_animation to match the movement direction, then
+        increments frame_index by animation_speed. When moving, the index
+        wraps back to 0 after the last frame. When stationary, the index is
+        held at 0 (the closed-mouth frame).
 
         Args:
             None
@@ -218,7 +233,6 @@ class Pacman(pygame.sprite.Sprite):
         Returns:
             None
         """
-
         if self.direction == pygame.Vector2(-1, 0):
             self.current_animation = self.animations["left"]
         elif self.direction == pygame.Vector2(1, 0):
@@ -240,10 +254,11 @@ class Pacman(pygame.sprite.Sprite):
 
     def reset_image(self):
         """
-        Reset Pacman's sprite to the original image and starting position.
+        Restore self.image and self.rect to their initial state.
 
-        Restores the initial sprite image and repositions Pacman's rectangle
-        to the starting position. Used when respawning after losing a life.
+        Copies original_image back to image and repositions rect to
+        start_pos. Called after a death animation completes so Pac-Man
+        reappears at his spawn tile with the default closed-mouth sprite.
 
         Args:
             None
@@ -251,17 +266,18 @@ class Pacman(pygame.sprite.Sprite):
         Returns:
             None
         """
-
         self.image = self.original_image.copy()
         self.rect = self.image.get_rect(topleft = (self.start_pos.x, self.start_pos.y))
     
     def update_boost(self):
         """
-        Check and expire active power-up effects based on elapsed time.
+        Expire any active boosts whose timer has elapsed.
 
-        Monitors the duration of active boosts (speed and shield) and removes
-        them when they expire. Resets speed to base value when speed boost
-        ends and disables shield when shield boost expires.
+        Checks each boost in active_boosts against the current wall-clock
+        time. Expired boosts are removed from the dict and their associated
+        state is reverted:
+            - "speed" boost: self.speed is reset to base_speed.
+            - "shield" boost: self.shielded is set to False.
 
         Args:
             None
@@ -269,7 +285,6 @@ class Pacman(pygame.sprite.Sprite):
         Returns:
             None
         """
-
         current_time = time.time()
 
         if "speed" in self.active_boosts:
@@ -283,12 +298,11 @@ class Pacman(pygame.sprite.Sprite):
 
     def update(self):
         """
-        Main update loop called every frame to update Pacman's state.
+        Run all per-frame logic for Pac-Man.
 
-        Executes all per-frame updates in sequence: processes input,
-        updates position, advances animation frame, and checks boost
-        expiration. This is the main entry point for updating Pacman
-        during gameplay.
+        Calls, in order: get_input(), move(), animate(), update_boost().
+        Intended to be called once per game loop iteration by the main
+        Game class.
 
         Args:
             None
@@ -296,7 +310,6 @@ class Pacman(pygame.sprite.Sprite):
         Returns:
             None
         """
-
         self.get_input()
         self.move()
         self.animate()
