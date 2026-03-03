@@ -1,5 +1,5 @@
 import pygame
-from src.utils.constants import TILE_SIZE, GHOST_SPEED
+from src.utils.constants import TILE_SIZE
 
 def is_centered(self) -> bool:
         """
@@ -19,7 +19,7 @@ def is_centered(self) -> bool:
         """
         center_x, center_y = self.rect.center
 
-        tile_center_x = (center_x // TILE_SIZE) * TILE_SIZE + TILE_SIZE // 2    
+        tile_center_x = (center_x // TILE_SIZE) * TILE_SIZE + TILE_SIZE // 2
         tile_center_y = (center_y // TILE_SIZE) * TILE_SIZE + TILE_SIZE // 2
 
         dist_x = abs(center_x - tile_center_x)
@@ -48,12 +48,12 @@ def check_collision(self, direction) -> bool:
         """
         next_x = self.pos.x + direction.x * self.speed
         next_y = self.pos.y + direction.y * self.speed
-        
+
         next_rect = pygame.Rect(next_x, next_y, self.rect.width, self.rect.height)
 
         if next_rect.collidelist(self.game_map.walls) > -1:
             return True
-        
+
         return False
 
 def reset_position(self) -> None:

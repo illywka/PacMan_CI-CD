@@ -21,6 +21,7 @@ class Pacman(pygame.sprite.Sprite):
         including lives, score, direction, speed, and active boosts.
 
         Args:
+            self
             x (int): Starting x-coordinate in pixels
             y (int): Starting y-coordinate in pixels
             game_map: The game map object for collision detection
@@ -29,6 +30,7 @@ class Pacman(pygame.sprite.Sprite):
         Returns:
             None
         """
+
         super().__init__()
         self.sound_manager = sound_manager or SoundManager()
         self.import_assets()
@@ -65,11 +67,12 @@ class Pacman(pygame.sprite.Sprite):
         against walls at the next tile centre.
 
         Args:
-            None
+            self
 
         Returns:
             None
         """
+
         keys = pygame.key.get_pressed()
         
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -99,11 +102,12 @@ class Pacman(pygame.sprite.Sprite):
         wall clipping.
 
         Args:
-            None
+            self
 
         Returns:
             None
         """
+
         if self.next_direction != pygame.Vector2(0, 0):
             if self.next_direction == -self.direction:
                 self.direction = self.next_direction
@@ -164,11 +168,12 @@ class Pacman(pygame.sprite.Sprite):
         either sprite sheet file is not found.
 
         Args:
-            None
+            self
 
         Returns:
             None
         """
+
         path_move = 'src/assets/pacman/pacman_move.png'
         path_death = 'src/assets/pacman/pacman_death.png'
         self.animations = {}
@@ -228,11 +233,12 @@ class Pacman(pygame.sprite.Sprite):
         held at 0 (the closed-mouth frame).
 
         Args:
-            None
+            self
 
         Returns:
             None
         """
+
         if self.direction == pygame.Vector2(-1, 0):
             self.current_animation = self.animations["left"]
         elif self.direction == pygame.Vector2(1, 0):
@@ -261,11 +267,12 @@ class Pacman(pygame.sprite.Sprite):
         reappears at his spawn tile with the default closed-mouth sprite.
 
         Args:
-            None
+            self
 
         Returns:
             None
         """
+
         self.image = self.original_image.copy()
         self.rect = self.image.get_rect(topleft = (self.start_pos.x, self.start_pos.y))
     
@@ -280,17 +287,19 @@ class Pacman(pygame.sprite.Sprite):
             - "shield" boost: self.shielded is set to False.
 
         Args:
-            None
+            self
 
         Returns:
             None
         """
+
         current_time = time.time()
 
         if "speed" in self.active_boosts:
             if current_time > self.active_boosts["speed"]:
                 del self.active_boosts["speed"]
                 self.speed = self.base_speed
+
         if "shield" in self.active_boosts:
             if current_time > self.active_boosts["shield"]:
                 del self.active_boosts["shield"]
@@ -305,11 +314,12 @@ class Pacman(pygame.sprite.Sprite):
         Game class.
 
         Args:
-            None
+            self
 
         Returns:
             None
         """
+
         self.get_input()
         self.move()
         self.animate()
