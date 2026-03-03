@@ -108,7 +108,7 @@ class Ghost(pygame.sprite.Sprite, ABC):
             pygame.Surface: The surface to blit each frame.
         """
         pass
-    
+
     @abstractmethod
     def get_target(self) -> tuple[int, int]:
         """
@@ -505,7 +505,7 @@ class Ghost(pygame.sprite.Sprite, ABC):
         else:
             self.pos.x = (self.rect.centerx // TILE_SIZE) * TILE_SIZE
             self.pos.y = (self.rect.centery // TILE_SIZE) * TILE_SIZE
-        
+
         self.rect.topleft = round(self.pos.x), round(self.pos.y)
 
 
@@ -533,7 +533,7 @@ class Pinky(Ghost):
         """
         self.time_out = 2
         super().__init__(game_map, pacman)
-    
+
     @property
     def image(self) -> pygame.Surface:
         """
@@ -587,7 +587,7 @@ class Inky(Ghost):
         """
         self.time_out = 6
         super().__init__(game_map, pacman)
-    
+
     @property
     def image(self) -> pygame.Surface:
         """
@@ -595,7 +595,7 @@ class Inky(Ghost):
             pygame.Surface: The current animation frame via change_sprite().
         """
         return self.change_sprite()
-    
+
     def get_target(self) -> tuple[int, int]:
         """
         Predict Pac-Man's position 4 steps ahead using the reversed
@@ -642,7 +642,7 @@ class Sue(Ghost):
         """
         self.time_out = 8
         super().__init__(game_map, pacman)
-    
+
     @property
     def image(self) -> pygame.Surface:
         """
@@ -707,7 +707,7 @@ class Clyde(Ghost):
             pygame.Surface: The current animation frame via change_sprite().
         """
         return self.change_sprite()
-    
+
     def get_target(self) -> tuple[int, int]|None:
         """
         Pick a random map tile as the next target when the current path is
