@@ -41,3 +41,7 @@ def test_pacman():
 @pytest.fixture
 def test_ghost():
     return Pinky(mock_map, player)
+
+@pytest.fixture
+def test_map():
+    return mock_map
