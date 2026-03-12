@@ -25,7 +25,7 @@ def test_pacman_lose_lives_games_ends(test_pacman, test_ghost):
     test_pacman.shielded = False
     game.player = test_pacman
 
-    test_ghost.is_scared = True
+    test_ghost.is_scared = False
     test_ghost.is_dead = False
     game.ghosts_group = [test_ghost]
 
@@ -59,3 +59,29 @@ def test_pacman_use_boost(mock_get_valid_tiles, mock_time, test_pacman, test_map
     objects.update_objects(test_pacman)
 
     assert test_pacman.active_boosts or test_pacman.score == 1000
+
+def test_pacman_eat_ghost(test_pacman, test_ghost):
+    '''
+    Docstring for test_pacman_eat_ghost
+
+    Tests if Pacman can eat scared ghsot
+
+    :param test_pacman: Test "Fake" Pacman
+    :param test_ghost: Test "Fake" Ghost
+    '''
+    game = Game()
+    
+    test_pacman.shielded = True
+    test_pacman.active_boosts["shield"] = 10
+
+    test_pacman.rect.topleft = (1*TILE_SIZE, 1*TILE_SIZE)
+    test_ghost.rect.topleft = (1*TILE_SIZE, 1*TILE_SIZE)
+    test_ghost.is_dead = False
+
+    game.player = test_pacman
+    game.ghosts_group=[test_ghost]
+    game._update()
+
+    game._handle_collisions()
+
+    assert test_ghost.is_dead == True
