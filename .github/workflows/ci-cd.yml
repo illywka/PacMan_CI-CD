@@ -2,9 +2,11 @@ name: PacMan CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main", "lab2/tests" ]
+    branches:
+      - '**'
   pull_request:
-    branches: [ "main", "lab2/tests" ]
+    branches:
+      - '**'
 
 jobs:
   build-and-test:
