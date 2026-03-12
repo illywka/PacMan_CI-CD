@@ -1,6 +1,6 @@
 import pygame
 from src.utils.constants import BLACK, WIDTH, HEIGHT
-from src.game_objects.volume_slider import VolumeSlider
+
 
 class Pause:
     """
@@ -47,9 +47,14 @@ class Pause:
         Returns:
             None
         """
-        self.return_btn_img = pygame.image.load('src/assets/interface/return_button/return_button.png').convert_alpha()
-        self.exit_btn_img = pygame.image.load('src/assets/interface/exit_button/exit_button.png').convert_alpha()
-    
+        self.return_btn_img = pygame.image.load(
+            'src/assets/interface/return_button/return_button.png'
+        ).convert_alpha()
+
+        self.exit_btn_img = pygame.image.load(
+            'src/assets/interface/exit_button/exit_button.png'
+        ).convert_alpha()
+
     def setup_buttons(self):
         """
         Position button rects relative to the screen centre.
@@ -64,11 +69,13 @@ class Pause:
         Returns:
             None
         """
-        center_x =  WIDTH // 2
+        center_x = WIDTH // 2
         center_y = HEIGHT // 2
 
-        self.return_btn_rect = self.return_btn_img.get_rect(center=(center_x, center_y - 30))
-        self.exit_btn_rect = self.exit_btn_img.get_rect(center=(center_x, center_y + 30))
+        self.return_btn_rect = self.return_btn_img.get_rect(
+            center=(center_x, center_y - 30))
+        self.exit_btn_rect = self.exit_btn_img.get_rect(
+            center=(center_x, center_y + 30))
 
     def handle_event(self, event) -> str | None:
         """
@@ -91,15 +98,15 @@ class Pause:
         self.volume_slider.handle_event(event)
         if event.type == pygame.MOUSEBUTTONDOWN:
             pos = event.pos
-            
+
             if self.return_btn_rect.collidepoint(pos):
                 return 'continue'
-            
+
             if self.exit_btn_rect.collidepoint(pos):
                 return 'exit'
-        
+
         return None
-    
+
     def draw(self, screen):
         """
         Draw the pause overlay onto the given surface.

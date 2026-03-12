@@ -1,4 +1,6 @@
-import pygame, os, time
+import pygame
+import os
+import time
 from abc import ABC, abstractmethod
 from src.utils.constants import PACMAN_SPEED, BOOST_DURATION, MAP_OFFSET_Y
 
@@ -12,6 +14,7 @@ BOOST_CONFIGS = {
 dict[str, str]: Maps each Boost subclass name to the subdirectory and
 base filename used to locate its sprite under ASSETS_PATH.
 """
+
 
 class Boost(ABC):
     """
@@ -38,6 +41,7 @@ class Boost(ABC):
             boosts are neither drawn nor re-applied.
     """
     _images = {}
+
     def __init__(self, x: int, y: int):
         """
         Initialise the boost at the given pixel coordinates.
@@ -60,12 +64,14 @@ class Boost(ABC):
         if class_name not in Boost._images:
             folder = BOOST_CONFIGS[class_name]
             file_path = os.path.join(ASSETS_PATH, folder, f"{folder}.png")
-            Boost._images[class_name] = pygame.image.load(file_path).convert_alpha()
+            Boost._images[class_name] = pygame.image.load(
+                file_path
+            ).convert_alpha()
 
         self.image = Boost._images[class_name]
-        self.rect = self.image.get_rect(center=(x,y))
+        self.rect = self.image.get_rect(center=(x, y))
         self.eaten = False
-    
+
     def draw(self, screen):
         """
         Blit the boost sprite onto the screen if it has not been eaten.
@@ -83,7 +89,7 @@ class Boost(ABC):
         if not self.eaten:
             shifted_rect = self.rect.move(0, MAP_OFFSET_Y)
             screen.blit(self.image, shifted_rect)
-    
+
     @abstractmethod
     def apply_effect(self, pacman):
         """
@@ -123,6 +129,7 @@ class CakeBoost(Boost):
         pacman.speed = PACMAN_SPEED + 2
         pacman.active_boosts["speed"] = time.time() + BOOST_DURATION
 
+
 class StrawberryBoost(Boost):
     """
     Score boost — instantly awards 1000 points with no timed effect.
@@ -137,7 +144,8 @@ class StrawberryBoost(Boost):
         Returns:
             None
         """
-        pacman.score += 1000  #можна змінити з часом
+        pacman.score += 1000  # можна змінити з часом
+
 
 class WatermelonBoost(Boost):
     """

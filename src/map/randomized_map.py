@@ -1,6 +1,13 @@
 import pygame
 import random
-from src.utils.constants import TILE_SIZE, GRID_HEIGHT, GRID_WIDTH, WIDTH, HEIGHT, BLUE, BLACK, FPS, MAP_OFFSET_Y
+from src.utils.constants import (
+    TILE_SIZE,
+    GRID_HEIGHT,
+    GRID_WIDTH,
+    BLUE,
+    MAP_OFFSET_Y,
+)
+
 
 class RandomMap():
     """
@@ -45,7 +52,6 @@ class RandomMap():
         self.ghost_start_x = self.width // 2 - 1
         self.ghost_start_y = self.height // 2 - 1
 
-
     def create_walls(self):
         """
         Populate self.walls with a pygame.Rect for every wall tile in the grid.
@@ -66,9 +72,9 @@ class RandomMap():
             for x, tile in enumerate(row):
                 if tile == 1:
                     self.walls.append(
-                        pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+                        pygame.Rect(
+                            x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
                     )
-
 
     def draw_map(self, screen: pygame.Surface):
         """
@@ -88,8 +94,7 @@ class RandomMap():
             shifted = wall.move(0, MAP_OFFSET_Y)
             pygame.draw.rect(screen, BLUE, shifted, 2)
 
-
-    def generate_pacman_maze(self) -> list[list[int]]: 
+    def generate_pacman_maze(self) -> list[list[int]]:
         """
         Procedurally build and return a symmetrical Pac-Man maze grid.
 
@@ -115,7 +120,7 @@ class RandomMap():
                 where 1 = wall, 0 = walkable, and 2 = ghost pen entrance.
         """
         level = [[0 for _ in range(GRID_WIDTH)] for _ in range(GRID_HEIGHT)]
-        
+
         for y in range(GRID_HEIGHT):
             level[y][0] = level[y][GRID_WIDTH-1] = 1
         for x in range(GRID_WIDTH):
@@ -142,12 +147,16 @@ class RandomMap():
             for x in range(2, GRID_WIDTH - 2, 2):
                 if (x, y) in ghost_house_zone:
                     continue
-                
+
                 level[y][x] = 1
                 if random.random() > 0.4:
                     side = random.choice([(0, 1), (1, 0), (0, -1), (-1, 0)])
                     nx, ny = x + side[0], y + side[1]
-                    if (nx, ny) not in ghost_house_zone and 1 < nx < GRID_WIDTH-2 and 1 < ny < GRID_HEIGHT-2:
+                    if (
+                        (nx, ny) not in ghost_house_zone
+                        and 1 < nx < GRID_WIDTH - 2
+                        and 1 < ny < GRID_HEIGHT - 2
+                    ):
                         level[ny][nx] = 1
 
         for y in range(GRID_HEIGHT):

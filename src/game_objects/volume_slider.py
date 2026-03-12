@@ -1,5 +1,6 @@
 import pygame
 
+
 class VolumeSlider:
     """
     An interactive horizontal slider for controlling music volume.
@@ -27,7 +28,13 @@ class VolumeSlider:
         dragging (bool): True while the user is holding the knob.
     """
 
-    def __init__(self, center_x: int, center_y: int, initial_volume=0.5, sound_manager=None):
+    def __init__(
+            self,
+            center_x: int,
+            center_y: int,
+            initial_volume=0.5,
+            sound_manager=None
+    ):
         """
         Load slider assets, position all rects, and set the default volume.
 
@@ -46,9 +53,17 @@ class VolumeSlider:
             None
         """
 
-        self.bar_img = pygame.image.load('src/assets/interface/volume_slider/volume_bar.png').convert_alpha()
-        self.fill_img = pygame.image.load('src/assets/interface/volume_slider/volume_full.png').convert_alpha()
-        self.knob_img = pygame.image.load('src/assets/interface/volume_slider/volume_knob.png').convert_alpha()
+        self.bar_img = pygame.image.load(
+            'src/assets/interface/volume_slider/volume_bar.png'
+        ).convert_alpha()
+
+        self.fill_img = pygame.image.load(
+            'src/assets/interface/volume_slider/volume_full.png'
+        ).convert_alpha()
+
+        self.knob_img = pygame.image.load(
+            'src/assets/interface/volume_slider/volume_knob.png'
+        ).convert_alpha()
 
         self.bar_rect = self.bar_img.get_rect(center=(center_x, center_y))
         self.fill_rect = self.fill_img.get_rect(center=(center_x, center_y))
@@ -132,14 +147,15 @@ class VolumeSlider:
 
         Args:
             self
-            screen (pygame.Surface): The surface to draw onto, typically the main display surface.
+            screen (pygame.Surface):
+            The surface to draw onto, typically the main display surface.
 
         Returns:
             None
         """
 
         screen.blit(self.bar_img, self.bar_rect)
-        screen.blit(self.fill_img, self.fill_rect) 
+        screen.blit(self.fill_img, self.fill_rect)
         screen.blit(self.knob_img, self.knob_rect)
 
     def get_volume(self):

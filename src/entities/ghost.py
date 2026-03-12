@@ -7,6 +7,7 @@ import src.entities.entity as entity
 
 import random
 
+
 class Ghost(pygame.sprite.Sprite, ABC):
     """
     Abstract base class for all ghost enemies.
@@ -50,6 +51,7 @@ class Ghost(pygame.sprite.Sprite, ABC):
             used to time the house-exit delay.
     """
     directions = [(-1, 0), (0, -1), (0, 1), (1, 0)]
+
     def __init__(self, game_map, pacman):
         """
         Initialise shared ghost state, pick a random spawn tile, and load
@@ -65,7 +67,8 @@ class Ghost(pygame.sprite.Sprite, ABC):
         """
         super().__init__()
 
-        self.rect = pygame.Rect(9*TILE_SIZE, 12*TILE_SIZE, TILE_SIZE, TILE_SIZE)
+        self.rect = pygame.Rect(
+            9*TILE_SIZE, 12*TILE_SIZE, TILE_SIZE, TILE_SIZE)
         self.base_speed = GHOST_SPEED
         self.speed = self.base_speed
 
@@ -76,7 +79,10 @@ class Ghost(pygame.sprite.Sprite, ABC):
 
         self.empty_tiles = self.find_empty_center_tiles()
         self.random_empty_tile = random.choice(self.empty_tiles)
-        self.start_pos = pygame.Vector2(self.random_empty_tile[1]*TILE_SIZE, self.random_empty_tile[0]*TILE_SIZE)
+        self.start_pos = pygame.Vector2(
+            self.random_empty_tile[1]*TILE_SIZE,
+            self.random_empty_tile[0]*TILE_SIZE
+        )
         self.pos = self.start_pos.copy()
 
         self.x = self.start_pos.copy()[1]
@@ -88,13 +94,14 @@ class Ghost(pygame.sprite.Sprite, ABC):
         self.sprite_start = (0, 0)
         self.sprite_width = (16, 16)
 
-        self.sprite_dead = pygame.image.load(f'src/assets/ghosts/killed_ghost/killed_ghost.png')
+        self.sprite_dead = pygame.image.load(
+            'src/assets/ghosts/killed_ghost/killed_ghost.png')
 
         self.is_scared = False
         self.is_dead = False
 
         self.spawn_time = pygame.time.get_ticks()
-        
+
     @property
     @abstractmethod
     def image(self) -> pygame.Surface:
@@ -150,11 +157,12 @@ class Ghost(pygame.sprite.Sprite, ABC):
         """
         if entity.is_centered(self):
             seconds = (pygame.time.get_ticks() - self.spawn_time) / 1000
-            
-            if seconds >= self.time_out and self.get_current_tile() in self.empty_tiles:
+
+            if (seconds >= self.time_out and
+                    self.get_current_tile() in self.empty_tiles):
                 self.is_dead = False
                 target_tile = self.open_tile_for_ghost()
-                
+
             elif self.get_current_tile() in self.empty_tiles:
                 available_tiles = self.empty_tiles.copy()
                 if self.get_current_tile() in available_tiles:
@@ -164,18 +172,22 @@ class Ghost(pygame.sprite.Sprite, ABC):
                 else:
                     target_tile = self.get_current_tile()
             elif self.is_dead:
-                target_tile = (round(self.start_pos[1] / TILE_SIZE), round(self.start_pos[0] / TILE_SIZE))
+                target_tile = (
+                    round(self.start_pos[1] / TILE_SIZE),
+                    round(self.start_pos[0] / TILE_SIZE)
+                    )
             else:
                 target_tile = self.get_target()
 
-            self.path = self.bfs(self.game_map.level, self.get_current_tile(), target_tile)
-            
+            self.path = self.bfs(
+                self.game_map.level, self.get_current_tile(), target_tile)
+
             if self.path and len(self.path) > 0:
                 self.next_direction = pygame.Vector2(self.path[0])
 
         self.move()
 
-    def find_empty_center_tiles(self) -> list[tuple[int,int]]:
+    def find_empty_center_tiles(self) -> list[tuple[int, int]]:
         """
         BFS-flood from the map centre outward to collect all connected
         walkable (value 0) tiles in the ghost pen region.
@@ -198,24 +210,25 @@ class Ghost(pygame.sprite.Sprite, ABC):
         visited = set()
         queue = deque([(start_y, start_x)])
         inner_zeros = []
-        
+
         visited.add((start_y, start_x))
-        
+
         while queue:
             y, x = queue.popleft()
             inner_zeros.append((y, x))
-            
+
             for dy, dx in self.directions:
                 next_y, next_x = y + dy, x + dx
-                
+
                 if 0 <= next_y < rows and 0 <= next_x < cols:
-                    if self.game_map.level[next_y][next_x] == 0 and (next_y, next_x) not in visited:
+                    if (self.game_map.level[next_y][next_x] == 0 and
+                            (next_y, next_x) not in visited):
                         visited.add((next_y, next_x))
                         queue.append((next_y, next_x))
-                        
+
         return sorted(inner_zeros)
 
-    def open_tile_for_ghost(self) -> tuple[int,int]:
+    def open_tile_for_ghost(self) -> tuple[int, int]:
         """
         Return the exit tile just above the pen entrance so a ghost can
         leave the house when its timeout has elapsed.
@@ -251,7 +264,7 @@ class Ghost(pygame.sprite.Sprite, ABC):
                 ghost's own sprite sheet (normal) or sprite_dead
                 (scared/dead).
         """
-        tick = (pygame.time.get_ticks()//(FPS*4))%2
+        tick = (pygame.time.get_ticks()//(FPS * 4)) % 2
 
         if self.is_scared:
             self.sprite_start = (0, TILE_SIZE*tick)
@@ -267,11 +280,19 @@ class Ghost(pygame.sprite.Sprite, ABC):
             elif self.direction == pygame.Vector2(0, 1):
                 self.sprite_start = (48, TILE_SIZE*tick)
 
-            return self.sprite.subsurface((self.sprite_start, self.sprite_width))
-        
-        return self.sprite_dead.subsurface((self.sprite_start, self.sprite_width))
+            return self.sprite.subsurface(
+                (self.sprite_start, self.sprite_width))
 
-    def bfs(self, matrix: list[list[int]], start: tuple[int, int], goal: tuple[int, int], avoid_pacman: bool=False) -> list|None:
+        return self.sprite_dead.subsurface((
+            self.sprite_start, self.sprite_width))
+
+    def bfs(
+            self,
+            matrix: list[list[int]],
+            start: tuple[int, int],
+            goal: tuple[int, int],
+            avoid_pacman: bool = False
+    ) -> list | None:
         """
         Run a breadth-first search on the tile grid from start to goal.
 
@@ -295,32 +316,37 @@ class Ghost(pygame.sprite.Sprite, ABC):
         rows, cols = len(matrix), len(matrix[0])
         queue = deque([start])
         visited = {start: None}
-        
+
         pacman_grid_pos = None
         if avoid_pacman:
-            pacman_grid_pos = (round(self.pacman.pos.y / TILE_SIZE), round(self.pacman.pos.x / TILE_SIZE))
+            pacman_grid_pos = (
+                round(self.pacman.pos.y / TILE_SIZE),
+                round(self.pacman.pos.x / TILE_SIZE)
+            )
 
         while queue:
             current = queue.popleft()
 
             if current == goal:
                 return self.reconstruct_path(visited, goal)
-                
+
             for dr, dc in self.directions:
                 r = (current[0] + dr) % rows
                 c = (current[1] + dc) % cols
                 neighbor = (r, c)
-                
+
                 if matrix[r][c] != 1 and neighbor not in visited:
                     if avoid_pacman and neighbor == pacman_grid_pos:
                         continue
-                    
+
                     visited[neighbor] = current
                     queue.append(neighbor)
-        
+
         return None
 
-    def reconstruct_path(self, visited: dict, goal: tuple[int, int]) -> list[tuple[int, int]]:
+    def reconstruct_path(
+            self, visited: dict, goal: tuple[int, int]
+    ) -> list[tuple[int, int]]:
         """
         Convert the BFS visited-parent map into an ordered list of
         (dx, dy) movement directions.
@@ -344,27 +370,33 @@ class Ghost(pygame.sprite.Sprite, ABC):
         while curr is not None:
             self.path.append(curr)
             curr = visited[curr]
-        
+
         dir_list = []
 
         for i in range(len(self.path)-1):
             target = self.path[i]
             source = self.path[i+1]
-            
+
             dy = target[0] - source[0]
             dx = target[1] - source[1]
 
-            if dy > 1:  dy = -1 
-            elif dy < -1: dy = 1 
-            
-            if dx > 1:  dx = -1 
-            elif dx < -1: dx = 1 
+            if dy > 1:
+                dy = -1
+            elif dy < -1:
+                dy = 1
+
+            if dx > 1:
+                dx = -1
+            elif dx < -1:
+                dx = 1
 
             dir_list.append((dx, dy))
-            
+
         return dir_list[::-1]
 
-    def future_pos(self, pos: pygame.Vector2, dir: pygame.Vector2) -> tuple[int, int]:
+    def future_pos(
+            self, pos: pygame.Vector2, dir: pygame.Vector2
+    ) -> tuple[int, int]:
         """
         Convert a pixel position and direction vector into the tile
         coordinate one step ahead.
@@ -378,45 +410,43 @@ class Ghost(pygame.sprite.Sprite, ABC):
             tuple[int, int]: The (row, col) tile one step ahead of pos
                 in the given direction.
         """
-        return int(pos[0])//TILE_SIZE + int(dir[1]), int(pos[1])//TILE_SIZE + int(dir[0])
-    
-    def predict_future_position(self, directions: list[tuple[int, int]]) -> tuple[int, int]:
+        return (
+            int(pos[0])//TILE_SIZE + int(dir[1]),
+            int(pos[1])//TILE_SIZE + int(dir[0])
+        )
+
+    def predict_future_position(
+        self,
+        directions: list[tuple[int, int]]
+    ) -> tuple[int, int]:
         """
         Predict where Pac-Man will be 4 steps in the future by simulating
         movement along valid tiles.
-
-        At each step the method tries each direction in the supplied order,
-        skipping moves that would enter a wall or reverse the current
-        direction, then advances Pac-Man's simulated position by one tile.
-
-        Args:
-            directions (list[tuple[int, int]]): Priority-ordered list of
-                (row_offset, col_offset) direction tuples to try at each
-                step. Pinky passes the default order; Inky passes it reversed.
-
-        Returns:
-            tuple[int, int]: The predicted (row, col) tile after 4 steps.
         """
-        dir = self.pacman.direction
-        pos = self.pacman.pos
-        for _ in range(1, 5):
-            curr_dir = dir
-            for i in range(0, 4):
-                dir = pygame.Vector2(directions[i])
-                y, x = self.future_pos(pos, dir)
-                
-                if y > len(self.game_map.level[0])-1:
-                    y = len(self.game_map.level[0])-1
-                if y < 0:
-                    y = 0
-        
-                if self.game_map.level[x][y] != 0 or curr_dir == -dir:
+        current_dir = pygame.Vector2(self.pacman.direction)
+        current_pos = pygame.Vector2(self.pacman.pos)
+
+        predict_pos = current_pos
+
+        for _ in range(4):
+            for d_tuple in directions:
+                test_dir = pygame.Vector2(d_tuple)
+
+                if test_dir == -current_dir:
                     continue
-                else:
-                    break
-            predict_pos = self.future_pos(pos, dir)
-            pos = pygame.Vector2(predict_pos[0]*TILE_SIZE, predict_pos[1]*TILE_SIZE)
-        return predict_pos[1], predict_pos[0]
+
+                next_tile = current_pos + test_dir
+                tx, ty = int(next_tile.x), int(next_tile.y)
+
+                if 0 <= ty < len(self.game_map.level) and \
+                   0 <= tx < len(self.game_map.level[0]):
+
+                    if self.game_map.level[ty][tx] != 0:
+                        current_pos = next_tile
+                        current_dir = test_dir
+                        predict_pos = next_tile
+
+        return int(predict_pos.y), int(predict_pos.x)
 
     def change_speed(self):
         """
@@ -453,7 +483,7 @@ class Ghost(pygame.sprite.Sprite, ABC):
             tuple[int, int]: The ghost's current (row, col) grid tile.
         """
         return (round(self.pos[1] / TILE_SIZE), round(self.pos[0] / TILE_SIZE))
-    
+
     def move(self):
         """
         Apply queued direction changes and advance the ghost by one frame.
@@ -476,7 +506,10 @@ class Ghost(pygame.sprite.Sprite, ABC):
         Returns:
             None
         """
-        if self.next_direction != pygame.Vector2(0, 0) and self.direction != self.next_direction:
+        if (
+            self.next_direction != pygame.Vector2(0, 0)
+            and self.direction != self.next_direction
+        ):
             old_pos = self.pos.copy()
             old_rect_topleft = self.rect.topleft
 
@@ -509,7 +542,7 @@ class Ghost(pygame.sprite.Sprite, ABC):
         self.rect.topleft = round(self.pos.x), round(self.pos.y)
 
 
-#Pinky, Inky, Sue, Clyde
+# Pinky, Inky, Sue, Clyde
 class Pinky(Ghost):
     """
     Pink ghost — targets 4 tiles ahead of Pac-Man's current direction.
@@ -521,7 +554,9 @@ class Pinky(Ghost):
     Class Attributes:
         sprite (pygame.Surface): Sprite sheet for Pinky's normal animations.
     """
-    sprite = pygame.image.load(f'src/assets/ghosts/pink_ghost/pink_ghost.png')
+    sprite = pygame.image.load(
+        'src/assets/ghosts/pink_ghost/pink_ghost.png')
+
     def __init__(self, game_map, pacman):
         """
         Args:
@@ -565,6 +600,7 @@ class Pinky(Ghost):
         self.change_speed()
         self.pathfind()
 
+
 class Inky(Ghost):
     """
     Cyan ghost — targets 4 tiles ahead of Pac-Man using reversed direction
@@ -575,7 +611,9 @@ class Inky(Ghost):
     Class Attributes:
         sprite (pygame.Surface): Sprite sheet for Inky's normal animations.
     """
-    sprite = pygame.image.load(f'src/assets/ghosts/cyan_ghost/cyan_ghost.png')
+    sprite = pygame.image.load(
+        'src/assets/ghosts/cyan_ghost/cyan_ghost.png')
+
     def __init__(self, game_map, pacman):
         """
         Args:
@@ -619,6 +657,7 @@ class Inky(Ghost):
         self.change_speed()
         self.pathfind()
 
+
 class Sue(Ghost):
     """
     Purple ghost — directly chases Pac-Man's current tile with no
@@ -629,8 +668,9 @@ class Sue(Ghost):
     Class Attributes:
         sprite (pygame.Surface): Sprite sheet for Sue's normal animations.
     """
-    sprite = pygame.image.load(f'src/assets/ghosts/purple_ghost/purple_ghost.png')
-    
+    sprite = pygame.image.load(
+        'src/assets/ghosts/purple_ghost/purple_ghost.png')
+
     def __init__(self, game_map, pacman):
         """
         Args:
@@ -658,7 +698,8 @@ class Sue(Ghost):
         Returns:
             tuple[int, int]: Pac-Man's current (row, col) grid tile.
         """
-        return (round(self.pacman.pos[1] / TILE_SIZE), round(self.pacman.pos[0] / TILE_SIZE))
+        return (round(self.pacman.pos[1] / TILE_SIZE),
+                round(self.pacman.pos[0] / TILE_SIZE))
 
     def update(self):
         """
@@ -672,6 +713,7 @@ class Sue(Ghost):
         """
         self.change_speed()
         self.pathfind()
+
 
 class Clyde(Ghost):
     """
@@ -687,7 +729,9 @@ class Clyde(Ghost):
     Class Attributes:
         sprite (pygame.Surface): Sprite sheet for Clyde's normal animations.
     """
-    sprite = pygame.image.load(f'src/assets/ghosts/brown_ghost/brown_ghost.png')
+    sprite = pygame.image.load(
+        'src/assets/ghosts/brown_ghost/brown_ghost.png')
+
     def __init__(self, game_map, pacman):
         """
         Args:
@@ -708,7 +752,7 @@ class Clyde(Ghost):
         """
         return self.change_sprite()
 
-    def get_target(self) -> tuple[int, int]|None:
+    def get_target(self) -> tuple[int, int] | None:
         """
         Pick a random map tile as the next target when the current path is
         exhausted, provided the tile is not a walkable pen tile.
