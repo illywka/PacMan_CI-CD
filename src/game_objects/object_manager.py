@@ -1,18 +1,24 @@
 import random
 import time
-import pygame
 from collections import deque
+
 from src.game_objects.pellet import Pellet
-from src.game_objects.boost import CakeBoost, StrawberryBoost, WatermelonBoost
+from src.game_objects.boost import (
+    CakeBoost,
+    StrawberryBoost,
+    WatermelonBoost
+)
 from src.utils.constants import TILE_SIZE
+
 
 class ObjectManager:
     """
     Manages all collectible objects on the map: pellets and rotating boosts.
 
     Responsible for spawning pellets across every valid walkable tile,
-    periodically replacing the active boost with a newly chosen one, detecting
-    collection collisions with the player, and drawing all live objects.
+    periodically replacing the active boost with a newly chosen one,
+    detecting collection collisions with the player, and drawing all
+    live objects.
 
     Attributes:
         map (Map | RandomMap): Reference to the active level map.
@@ -45,7 +51,7 @@ class ObjectManager:
         self.last_pellet_sfx_time = 0
         self.pellet_sfx_cooldown = 0.2
 
-    def is_walkable(self, x: int , y: int) -> bool:
+    def is_walkable(self, x: int, y: int) -> bool:
         """
         Return whether the tile at (x, y) is an open (non-wall) cell.
 
@@ -73,12 +79,17 @@ class ObjectManager:
         Returns:
             bool: True if the tile is within the ghost spawn region.
         """
-        return(self.map.ghost_start_x <= x < self.map.ghost_start_x + 3 and 
-               self.map.ghost_start_y <= y < self.map.ghost_start_y + 3)
+        return (
+            self.map.ghost_start_x <= x < self.map.ghost_start_x + 3
+            and self.map.ghost_start_y <= y < self.map.ghost_start_y + 3
+        )
 
-    def find_reachable_tiles(self, start_x: int, start_y: int) -> set[tuple[int, int]]:
+    def find_reachable_tiles(
+        self, start_x: int, start_y: int
+    ) -> set[tuple[int, int]]:
         """
-        BFS-flood from (start_x, start_y) and return all connected walkable tiles.
+        BFS-flood from (start_x, start_y) and return all connected
+        walkable tiles.
 
         Used to exclude isolated walkable pockets that Pac-Man can never
         actually reach, ensuring pellets are only placed on reachable ground.
@@ -88,8 +99,8 @@ class ObjectManager:
             start_y (int): Row index of the flood-fill origin tile.
 
         Returns:
-            set[tuple[int, int]]: Set of (col, row) tile coordinates reachable
-                from the start tile via walkable neighbours.
+            set[tuple[int, int]]: Set of (col, row) tile coordinates
+                reachable from the start tile via walkable neighbours.
         """
         visited = set()
         visited.add((start_x, start_y))
@@ -101,19 +112,25 @@ class ObjectManager:
             neighbors = [
                 (x + 1, y),
                 (x - 1, y),
-                (x, y + 1), 
+                (x, y + 1),
                 (x, y - 1)
             ]
-            
+
             for nx, ny in neighbors:
-                if (0 <= nx < self.map.width and 0 <= ny <self.map.height and
-                    self.is_walkable(nx, ny) and (nx, ny) not in visited):
+                if (
+                    0 <= nx < self.map.width
+                    and 0 <= ny < self.map.height
+                    and self.is_walkable(nx, ny)
+                    and (nx, ny) not in visited
+                ):
                     visited.add((nx, ny))
                     queue.append((nx, ny))
 
         return visited
 
-    def get_valid_tiles(self, start_x: int = 1, start_y: int = 1) -> list[tuple[int, int]]:
+    def get_valid_tiles(
+        self, start_x: int = 1, start_y: int = 1
+    ) -> list[tuple[int, int]]:
         """
         Return all tile coordinates suitable for pellet or boost placement.
 
@@ -197,9 +214,11 @@ class ObjectManager:
         pixel_x = x * TILE_SIZE + TILE_SIZE // 2
         pixel_y = y * TILE_SIZE + TILE_SIZE // 2
 
-        boost_class = random.choice([CakeBoost, StrawberryBoost, WatermelonBoost])
+        boost_class = random.choice([
+            CakeBoost, StrawberryBoost, WatermelonBoost
+        ])
         self.current_boost = boost_class(pixel_x, pixel_y)
-    
+
     def update_boost(self):
         """
         Rotate the active boost once boost_interval seconds have elapsed.
@@ -231,11 +250,11 @@ class ObjectManager:
             None
         """
         for pellet in self.pellets:
-            if not pellet.eaten: 
+            if not pellet.eaten:
                 pellet.draw(screen)
         if self.current_boost:
             self.current_boost.draw(screen)
-    
+
     def update_objects(self, player):
         """
         Detect and handle collection of pellets and the active boost.
@@ -255,7 +274,10 @@ class ObjectManager:
             None
         """
         for pellet in self.pellets:
-            if not pellet.eaten and player.rect.inflate(4, 4).colliderect(pellet.rect):
+            if (
+                not pellet.eaten
+                and player.rect.inflate(4, 4).colliderect(pellet.rect)
+            ):
                 pellet.eaten = True
                 player.score += 10
 
@@ -264,9 +286,10 @@ class ObjectManager:
                 if now - self.last_pellet_sfx_time >= self.pellet_sfx_cooldown:
                     player.sound_manager.play_sound("pacman_eat_dots")
                     self.last_pellet_sfx_time = now
+
         if self.current_boost and not self.current_boost.eaten:
             if player.rect.colliderect(self.current_boost.rect):
                 self.current_boost.apply_effect(player)
                 self.current_boost = None
-                
+
                 player.sound_manager.play_sound("pacman_eat_fruit")

@@ -15,6 +15,7 @@ from src.game_objects.object_manager import ObjectManager
 from src.core.pause import Pause
 from src.game_objects.volume_slider import VolumeSlider
 
+
 class Game():
     """
     Main game controller for the Pac-Man clone.
@@ -54,13 +55,17 @@ class Game():
 
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         self.clock = pygame.time.Clock()
-        self.font = pygame.font.Font('src/assets/font/arcadeclassic/ARCADECLASSIC.TTF', 28)
+        self.font = pygame.font.Font(
+            'src/assets/font/arcadeclassic/ARCADECLASSIC.TTF', 28)
 
         self.sound_manager = SoundManager()
-        self.sound_manager.play_sound_if_idle("pacman_menu_theme", loops=-1)
+        self.sound_manager.play_sound_if_idle(
+            "pacman_menu_theme", loops=-1)
 
-        self.volume_slider = VolumeSlider(center_x=WIDTH // 2, center_y=HEIGHT // 2 + 90)
-        self.sound_manager.set_volume(self.volume_slider.get_volume())
+        self.volume_slider = VolumeSlider(
+            center_x=WIDTH // 2, center_y=HEIGHT // 2 + 90)
+        self.sound_manager.set_volume(
+            self.volume_slider.get_volume())
 
         self.game_map = None
         self.player = None
@@ -91,7 +96,8 @@ class Game():
 
         self.game_map = Map() if random.random() < 0.5 else RandomMap()
 
-        self.player = Pacman(TILE_SIZE, TILE_SIZE, self.game_map, self.sound_manager)
+        self.player = Pacman(
+            TILE_SIZE, TILE_SIZE, self.game_map, self.sound_manager)
 
         ghosts = [
             Pinky(self.game_map, self.player),
@@ -116,36 +122,61 @@ class Game():
             None
         """
 
-        self.startpage_img = self._load_image('src/assets/interface/startpage/startpage.png', scale=(WIDTH, HEIGHT))
+        self.startpage_img = self._load_image(
+            'src/assets/interface/startpage/startpage.png',
+            scale=(WIDTH, HEIGHT))
+        self.play_btn_img = self._load_image(
+            'src/assets/interface/play_button/play_button.png')
+        self.menu_btn_img = self._load_image(
+            'src/assets/interface/menu_button/menu_button.png')
+        self.play_btn_rect = self.play_btn_img.get_rect(
+            center=(WIDTH // 2, HEIGHT // 2))
+        self.menu_btn_rect = self.menu_btn_img.get_rect(
+            center=(WIDTH // 2, HEIGHT // 2 + self.play_btn_img.get_height()))
 
-        self.play_btn_img = self._load_image('src/assets/interface/play_button/play_button.png')
-        self.menu_btn_img = self._load_image('src/assets/interface/menu_button/menu_button.png')
-        self.play_btn_rect = self.play_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2))
-        self.menu_btn_rect = self.menu_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 + self.play_btn_img.get_height()))
+        self.easy_mode_btn_img = self._load_image(
+            'src/assets/interface/lvl_difficulty/easy_lvl.png')
+        self.medium_mode_btn_img = self._load_image(
+            'src/assets/interface/lvl_difficulty/medium_lvl.png')
+        self.hard_mode_btn_img = self._load_image(
+            'src/assets/interface/lvl_difficulty/hard_lvl.png')
+        self.easy_mode_btn_rect = self.easy_mode_btn_img.get_rect(
+            center=(WIDTH // 2, HEIGHT // 2 - 80))
+        self.medium_mode_btn_rect = self.medium_mode_btn_img.get_rect(
+            center=(WIDTH // 2, HEIGHT // 2 - 20))
+        self.hard_mode_btn_rect = self.hard_mode_btn_img.get_rect(
+            center=(WIDTH // 2, HEIGHT // 2 + 40))
 
-        self.easy_mode_btn_img = self._load_image('src/assets/interface/lvl_difficulty/easy_lvl.png')
-        self.medium_mode_btn_img = self._load_image('src/assets/interface/lvl_difficulty/medium_lvl.png')
-        self.hard_mode_btn_img = self._load_image('src/assets/interface/lvl_difficulty/hard_lvl.png')
-        self.easy_mode_btn_rect = self.easy_mode_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 80))
-        self.medium_mode_btn_rect = self.medium_mode_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 - 20))
-        self.hard_mode_btn_rect = self.hard_mode_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 40))
+        self.pause_btn_img = self._load_image(
+            'src/assets/interface/pause_button/pause_button.png')
+        self.pause_btn_rect = self.pause_btn_img.get_rect(
+            topright=(WIDTH - 15, 7))
 
-        self.pause_btn_img = self._load_image('src/assets/interface/pause_button/pause_button.png')
-        self.pause_btn_rect = self.pause_btn_img.get_rect(topright=(WIDTH - 15, 7))
+        self.arrow_btn_img = self._load_image(
+            'src/assets/interface/arrow/arrow.png')
+        self.arrow_btn_rect = self.arrow_btn_img.get_rect(
+            center=(WIDTH // 2, HEIGHT // 2 + 150))
 
-        self.arrow_btn_img = self._load_image('src/assets/interface/arrow/arrow.png')
-        self.arrow_btn_rect = self.arrow_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 150))
+        self.volume_slider = VolumeSlider(
+            center_x=WIDTH//2, center_y=HEIGHT//2 + 90,
+            initial_volume=self.initial_volume)
 
-        self.volume_slider = VolumeSlider(center_x=WIDTH // 2, center_y=HEIGHT // 2 + 90, initial_volume=self.initial_volume)
+        self.losepage_img = self._load_image(
+            'src/assets/interface/lose_page/lose_menu.png',
+            scale=(WIDTH, HEIGHT))
+        self.winpage_img = self._load_image(
+            'src/assets/interface/win_page/win_menu.png',
+            scale=(WIDTH, HEIGHT))
 
-        self.losepage_img = self._load_image('src/assets/interface/lose_page/lose_menu.png', scale=(WIDTH, HEIGHT))
-        self.winpage_img = self._load_image('src/assets/interface/win_page/win_menu.png', scale=(WIDTH, HEIGHT))
+        self.again_btn_img = self._load_image(
+            'src/assets/interface/again_button/again_button.png')
+        self.again_btn_rect = self.again_btn_img.get_rect(
+            center=(WIDTH // 2, HEIGHT // 2 + 78))
 
-        self.again_btn_img = self._load_image('src/assets/interface/again_button/again_button.png')
-        self.again_btn_rect = self.again_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 78))
-
-        self.exit_btn_img = self._load_image('src/assets/interface/exit_button/exit_button.png')
-        self.exit_btn_rect = self.exit_btn_img.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 125))
+        self.exit_btn_img = self._load_image(
+            'src/assets/interface/exit_button/exit_button.png')
+        self.exit_btn_rect = self.exit_btn_img.get_rect(
+            center=(WIDTH // 2, HEIGHT // 2 + 125))
 
         self._difficulty_buttons = [
             (self.easy_mode_btn_rect, "easy"),
@@ -193,15 +224,18 @@ class Game():
         if self.player.shielded:
             self.sound_manager.stop_sound("ghosts_normal_move")
             self.sound_manager.stop_sound("ghosts_return_to_house")
-            self.sound_manager.play_sound_if_idle("ghosts_turn_to_blue", loops=-1)
+            self.sound_manager.play_sound_if_idle(
+                "ghosts_turn_to_blue", loops=-1)
         elif not any_ghost_dead:
             self.sound_manager.stop_sound("ghosts_turn_to_blue")
             self.sound_manager.stop_sound("ghosts_return_to_house")
-            self.sound_manager.play_sound_if_idle("ghosts_normal_move", loops=-1)
+            self.sound_manager.play_sound_if_idle(
+                "ghosts_normal_move", loops=-1)
         else:
             self.sound_manager.stop_sound("ghosts_turn_to_blue")
             self.sound_manager.stop_sound("ghosts_normal_move")
-            self.sound_manager.play_sound_if_idle("ghosts_return_to_house", loops=-1)
+            self.sound_manager.play_sound_if_idle(
+                "ghosts_return_to_house", loops=-1)
 
     def _reset_all_entities(self):
         """
@@ -256,7 +290,8 @@ class Game():
         """
 
         score_text = self.font.render(str(self.player.score), True, WHITE)
-        score_rect = score_text.get_rect(center=(WIDTH // 2, MAP_OFFSET_Y // 2))
+        score_rect = score_text.get_rect(
+            center=(WIDTH // 2, MAP_OFFSET_Y // 2))
         self.screen.blit(score_text, score_rect)
 
     def play_death_animation(self):
@@ -304,11 +339,19 @@ class Game():
 
             self.volume_slider.handle_event(event)
 
-            if event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEMOTION, pygame.MOUSEBUTTONUP):
+            if event.type in (
+                pygame.MOUSEBUTTONDOWN,
+                pygame.MOUSEMOTION,
+                pygame.MOUSEBUTTONUP,
+            ):
                 self.sound_manager.set_volume(self.volume_slider.get_volume())
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE and self.game_state == "game" and not self.escape_pressed:
+                if (
+                    event.key == pygame.K_ESCAPE
+                    and self.game_state == "game"
+                    and not self.escape_pressed
+                ):
                     self._play_click_sound()
                     self.paused = not self.paused
                     self.escape_pressed = True
@@ -432,7 +475,8 @@ class Game():
             None
         """
 
-        collisions = pygame.sprite.spritecollide(self.player, self.ghosts_group, False)
+        collisions = pygame.sprite.spritecollide(
+            self.player, self.ghosts_group, False)
         alive_collisions = [g for g in collisions if not g.is_dead]
 
         if not alive_collisions:
@@ -509,10 +553,16 @@ class Game():
         self.screen.fill(BLACK)
         self.game_map.draw_map(self.screen)
         self.objects.draw_objects(self.screen)
-        self.screen.blit(self.player.image, self.player.rect.move(0, MAP_OFFSET_Y))
+        self.screen.blit(
+            self.player.image,
+            self.player.rect.move(0, MAP_OFFSET_Y)
+        )
 
         for ghost in self.ghosts_group:
-            self.screen.blit(ghost.image, ghost.rect.move(0, MAP_OFFSET_Y))
+            self.screen.blit(
+                ghost.image,
+                ghost.rect.move(0, MAP_OFFSET_Y)
+            )
 
         self.draw_score()
 

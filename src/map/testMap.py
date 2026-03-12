@@ -1,6 +1,7 @@
 import pygame
 from src.utils.constants import TILE_SIZE, BLUE, MAP_OFFSET_Y
 
+
 class Map():
     """
     A fixed, hand-authored Pac-Man maze.
@@ -72,7 +73,7 @@ class Map():
         self.ghost_zone_size = 3
         self.ghost_start_x = self.width // 2 - 1
         self.ghost_start_y = self.height // 2 - 1
-    
+
     def create_walls(self):
         """
         Populate self.walls with a pygame.Rect for every wall tile in the grid.
@@ -92,8 +93,8 @@ class Map():
         for y, row in enumerate(self.level):
             for x, tile in enumerate(row):
                 if tile == 1:
-                    self.walls.append(pygame.Rect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
-        
+                    self.walls.append(pygame.Rect(
+                        x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE))
 
     def draw_map(self, screen: pygame.Surface):
         """
