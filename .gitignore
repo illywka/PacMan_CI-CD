@@ -3,4 +3,4 @@ __pycache__/
 .venv/
 .idea/
 .vscode/
-flake-report/
+flake8_report/
