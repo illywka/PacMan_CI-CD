@@ -1,10 +1,12 @@
 import pygame
+import pytest
 from unittest.mock import patch
 
 from src.utils.constants import TILE_SIZE
 from src.core.game import Game  
 from src.game_objects.object_manager import ObjectManager
 
+#-----------------------Illia-----------------------
 def test_pacman_lose_lives_games_ends(test_pacman, test_ghost):
     '''
     Docstring for test_pacman_lose_lives_games_ends
@@ -85,3 +87,26 @@ def test_pacman_eat_ghost(test_pacman, test_ghost):
     game._handle_collisions()
 
     assert test_ghost.is_dead == True
+
+@patch.object(ObjectManager, 'get_valid_tiles')
+def test_game_won(mock_get_valid_tiles, test_pacman, test_map):
+    mock_get_valid_tiles.return_value = [(1,1)]
+    objects = ObjectManager(test_map)
+    game = Game()
+
+    game.game_state = "game"
+
+    objects.spawn_pellets()
+
+    test_pacman.rect.topleft = (1*TILE_SIZE, 1*TILE_SIZE)
+
+    game.objects = objects
+    game.objects.update_objects(test_pacman)
+    
+    game._check_win_condition()
+
+    assert game.game_state == "win"
+
+    
+#-------------------------------------------------
+#--------------------Anastasiia-------------------
