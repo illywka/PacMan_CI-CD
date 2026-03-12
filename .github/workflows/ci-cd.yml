@@ -31,7 +31,7 @@ jobs:
     - name: Run Pytest
       if: always()
       run: |
-        pytest --html=pytest_report.html --self-contained-html
+        python -m pytest --html=pytest_report.html --self-contained-html
 
     - name: Upload Flake8 HTML Report
       if: always()
