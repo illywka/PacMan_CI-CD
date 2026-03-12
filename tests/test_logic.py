@@ -1,28 +1,28 @@
-import pygame
-import pytest
 from unittest.mock import patch
 
 from src.utils.constants import TILE_SIZE
-from src.core.game import Game  
+from src.core.game import Game
 from src.game_objects.object_manager import ObjectManager
 
-#-----------------------Illia-----------------------
+
+# -----------------------Illia-----------------------
 def test_pacman_lose_lives_games_ends(test_pacman, test_ghost):
     '''
     Docstring for test_pacman_lose_lives_games_ends
 
-    Tests if games ends when Pacman in collide with Ghost and Pacman has 1 life left.
-    
+    Tests if games ends when Pacman in collide with Ghost
+    and Pacman has 1 life left.
+
     :param test_pacman: Test "Fake" Pacman
     :param test_ghost: Test "Fake" Ghost
     '''
     game = Game()
 
     game.game_state = "game"
-    
+
     test_pacman.rect.topleft = (1*TILE_SIZE, 1*TILE_SIZE)
     test_ghost.rect.topleft = (1*TILE_SIZE, 1*TILE_SIZE)
-    
+
     test_pacman.lives = 1
     test_pacman.shielded = False
     game.player = test_pacman
@@ -32,13 +32,15 @@ def test_pacman_lose_lives_games_ends(test_pacman, test_ghost):
     game.ghosts_group = [test_ghost]
 
     game._handle_collisions()
-    
+
     assert test_pacman.lives == 0
     assert game.game_state == "lose"
 
+
 @patch('src.game_objects.object_manager.time.time')
 @patch.object(ObjectManager, 'get_valid_tiles')
-def test_pacman_use_boost(mock_get_valid_tiles, mock_time, test_pacman, test_map):
+def test_pacman_use_boost(mock_get_valid_tiles, mock_time,
+                          test_pacman, test_map):
     '''
     Docstring for test_end_boost_time
 
@@ -50,7 +52,7 @@ def test_pacman_use_boost(mock_get_valid_tiles, mock_time, test_pacman, test_map
     :param test_map: Test "Fake" Map
     '''
 
-    mock_get_valid_tiles.return_value = [(1,1)]
+    mock_get_valid_tiles.return_value = [(1, 1)]
     mock_time.return_value = 100
 
     test_pacman.rect.topleft = (1*TILE_SIZE, 1*TILE_SIZE)
@@ -62,6 +64,7 @@ def test_pacman_use_boost(mock_get_valid_tiles, mock_time, test_pacman, test_map
 
     assert test_pacman.active_boosts or test_pacman.score == 1000
 
+
 def test_pacman_eat_ghost(test_pacman, test_ghost):
     '''
     Docstring for test_pacman_eat_ghost
@@ -72,7 +75,7 @@ def test_pacman_eat_ghost(test_pacman, test_ghost):
     :param test_ghost: Test "Fake" Ghost
     '''
     game = Game()
-    
+
     test_pacman.shielded = True
     test_pacman.active_boosts["shield"] = 10
 
@@ -81,25 +84,26 @@ def test_pacman_eat_ghost(test_pacman, test_ghost):
     test_ghost.is_dead = False
 
     game.player = test_pacman
-    game.ghosts_group=[test_ghost]
+    game.ghosts_group = [test_ghost]
     game._update()
 
     game._handle_collisions()
 
-    assert test_ghost.is_dead == True
+    assert test_ghost.is_dead is True
+
 
 @patch.object(ObjectManager, 'get_valid_tiles')
 def test_game_won(mock_get_valid_tiles, test_pacman, test_map):
     '''
     Docstring for test_game_won
-    
+
     Tests if Pacman wins if all pellets eaten
 
     :param mock_get_valid_tiles: Mocks valid tiles
     :param test_pacman: Test "Fake" Pacman
     :param test_map: Test "Fake" Map
     '''
-    mock_get_valid_tiles.return_value = [(1,1)]
+    mock_get_valid_tiles.return_value = [(1, 1)]
     objects = ObjectManager(test_map)
     game = Game()
 
@@ -111,11 +115,10 @@ def test_game_won(mock_get_valid_tiles, test_pacman, test_map):
 
     game.objects = objects
     game.objects.update_objects(test_pacman)
-    
+
     game._check_win_condition()
 
     assert game.game_state == "win"
+# -------------------------------------------------
 
-
-#-------------------------------------------------
-#--------------------Anastasiia-------------------
+# --------------------Anastasiia-------------------
