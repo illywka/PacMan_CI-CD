@@ -90,6 +90,15 @@ def test_pacman_eat_ghost(test_pacman, test_ghost):
 
 @patch.object(ObjectManager, 'get_valid_tiles')
 def test_game_won(mock_get_valid_tiles, test_pacman, test_map):
+    '''
+    Docstring for test_game_won
+    
+    Tests if Pacman wins if all pellets eaten
+
+    :param mock_get_valid_tiles: Mocks valid tiles
+    :param test_pacman: Test "Fake" Pacman
+    :param test_map: Test "Fake" Map
+    '''
     mock_get_valid_tiles.return_value = [(1,1)]
     objects = ObjectManager(test_map)
     game = Game()
@@ -107,6 +116,6 @@ def test_game_won(mock_get_valid_tiles, test_pacman, test_map):
 
     assert game.game_state == "win"
 
-    
+
 #-------------------------------------------------
 #--------------------Anastasiia-------------------
