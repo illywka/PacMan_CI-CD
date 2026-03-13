@@ -1,4 +1,3 @@
-import pytest
 from unittest.mock import patch
 
 from src.utils.constants import TILE_SIZE
@@ -7,7 +6,6 @@ from src.game_objects.object_manager import ObjectManager
 
 
 # -----------------------Illia-----------------------
-@pytest.mark.logic 
 def test_pacman_lose_lives_games_ends(test_pacman, test_ghost):
     '''
     Docstring for test_pacman_lose_lives_games_ends
@@ -38,7 +36,7 @@ def test_pacman_lose_lives_games_ends(test_pacman, test_ghost):
     assert test_pacman.lives == 0
     assert game.game_state == "lose"
 
-@pytest.mark.logic
+
 @patch('src.game_objects.object_manager.time.time')
 @patch.object(ObjectManager, 'get_valid_tiles')
 def test_pacman_use_boost(mock_get_valid_tiles, mock_time,
@@ -66,7 +64,7 @@ def test_pacman_use_boost(mock_get_valid_tiles, mock_time,
 
     assert test_pacman.active_boosts or test_pacman.score == 1000
 
-@pytest.mark.logic
+
 def test_pacman_eat_ghost(test_pacman, test_ghost):
     '''
     Docstring for test_pacman_eat_ghost
@@ -93,7 +91,7 @@ def test_pacman_eat_ghost(test_pacman, test_ghost):
 
     assert test_ghost.is_dead is True
 
-@pytest.mark.logic
+
 @patch.object(ObjectManager, 'get_valid_tiles')
 def test_game_won(mock_get_valid_tiles, test_pacman, test_map):
     '''
@@ -121,5 +119,6 @@ def test_game_won(mock_get_valid_tiles, test_pacman, test_map):
     game._check_win_condition()
 
     assert game.game_state == "win"
+# -------------------------------------------------
 
-
+# --------------------Anastasiia-------------------
