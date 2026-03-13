@@ -1,7 +1,8 @@
 import pytest
 import pygame
 from src.utils.constants import TILE_SIZE, PACMAN_SPEED, WIDTH
-from unittest.mock import MagicMock, patch
+from src.game_objects.object_manager import ObjectManager
+from unittest.mock import patch
 
 
 #@pytest.mark.movement
@@ -56,3 +57,16 @@ def test_tunnel_right(mock_collision, test_pacman):
 
     assert test_pacman.pos.x == -test_pacman.rect.width + test_pacman.direction.x * test_pacman.speed
 
+@patch.object(ObjectManager, 'get_valid_tiles')
+def test_collect_pellet(mock_get_valid_tiles, test_pacman, test_map):
+    mock_get_valid_tiles.return_value = [(1, 1)]
+
+    objects = ObjectManager(test_map)
+    objects.spawn_pellets()
+
+    test_pacman.rect.topleft = (1 * TILE_SIZE, 1 * TILE_SIZE)
+
+    objects.update_objects(test_pacman)
+
+    assert test_pacman.score == 10
+    assert objects.pellets[0].eaten == True
